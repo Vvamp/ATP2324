@@ -1,0 +1,154 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[a4paper]{report}
+%\usepackage[date=short,backend=biber]{apa}
+\usepackage{hyperref}
+\usepackage{apacite}
+\usepackage[dutch]{babel}
+\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{nameref}
+\usepackage{tcolorbox}
+
+% Styling
+\pagestyle{fancy}
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+
+\fancyhf{}
+\fancyhead[L]{ <Groep/Klas> }
+\fancyhead[R]{ <Document Titel> }
+\fancyfoot[R]{\thepage}
+
+\titleformat{\chapter}[hang]
+{\normalfont\huge\bfseries}{\thechapter.}{10pt}{\huge}
+\titlespacing{\chapter}{0pt}{-30pt}{20pt}
+
+\setlength{\parindent}{0.2em}
+
+\textwidth=400pt
+\geometry{
+    left=25mm
+}
+
+\renewcommand{\contentsname}{Inhoudsopgave}
+
+
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+% Commands
+\newcommand{\teambox}{
+  \begin{tcolorbox}[hbox, colback=blue!5!white,colframe=blue!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Team Keuze
+  \end{tcolorbox}
+}
+
+\newcommand{\personalbox}{
+  \begin{tcolorbox}[hbox, colback=green!5!white,colframe=green!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Persoonlijke Keuze
+  \end{tcolorbox}
+}
+\newcommand{\teamchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\teambox}}
+}
+
+\newcommand{\personalchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\personalbox}}
+}
+
+
+% Document
+\begin{document}
+
+
+% Title Page
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        \Huge
+        \textbf{ <Document Titel> }\\
+        \vspace{0.5cm}\Large
+        <Groep>
+
+        \normalsize
+
+        \vspace{0.5cm}
+        \textbf{Vincent van Setten - 1734729}
+        \vfill
+
+        \vspace{0.8cm}
+
+        \includegraphics[width=0.6\textwidth]{Images/logouni.png}
+
+        HU University of Applied Sciences\\
+        The Netherlands\\
+        \today
+    \end{center}
+\end{titlepage}
+
+
+% ToC
+\tableofcontents
+
+\chapter*{Versiebeheer}
+\thispagestyle{empty}  % Removes header and footer from this specific page
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|p{5cm}|}
+        \hline
+        Versie & Datum      & Changes Made  \\
+        \hline
+        1.0    & 2023-09-10 & Eerste Versie \\
+        \hline
+    \end{tabular}
+    \caption{Versiebeheer}
+\end{table}
+\clearpage  % End of the page
+
+\chapter{Introductie}
+
+\chapter{Bibliografie}
+\nocite{*} % This includes all entries from the .bib file, even if they're not cited in the document
+\begingroup
+\renewcommand{\chapter}[2]{} % Removes the 'Chapter' heading
+\renewcommand{\addcontentsline}[3]{} % Prevents adding this specific entry to TOC
+\bibliographystyle{apacite}
+\bibliography{bronnen}
+\endgroup
+
+\chapter{Bijlagen}
+
+\end{document}
