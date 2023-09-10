@@ -8,22 +8,29 @@
 \usepackage[a4paper, left=1in, right=1in, top=1in, bottom=.8in]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage{fancyhdr}
+\usepackage{nameref}
+\usepackage{helvet}
 \usepackage{titlesec}
 \usepackage{geometry}
+\usepackage{ragged2e}
 \usepackage{graphicx}
 \usepackage{etoolbox}
 \usepackage{listings}
+\usepackage{xspace}
 \usepackage{xcolor}
 \usepackage{nameref}
 \usepackage{tcolorbox}
+\usepackage{textcomp}
+
 
 % Styling
+\renewcommand{\rmdefault}{\sfdefault}
 \pagestyle{fancy}
 \patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
 
 \fancyhf{}
-\fancyhead[L]{ <Groep/Klas> }
-\fancyhead[R]{ <Document Titel> }
+\fancyhead[L]{ \turtleguard }
+\fancyhead[R]{ Projectplan }
 \fancyfoot[R]{\thepage}
 
 \titleformat{\chapter}[hang]
@@ -38,8 +45,7 @@
 }
 
 \renewcommand{\contentsname}{Inhoudsopgave}
-
-
+\RaggedRight % Don't 'block-justify' text
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -88,7 +94,7 @@
 \newcommand{\personalchoice}[1]{
   \section[ #1 ]{#1~\mbox{\personalbox}}
 }
-
+\newcommand{\turtleguard}{\mbox{TurtleGuard\texttrademark}\xspace}
 
 % Document
 \begin{document}
@@ -97,26 +103,29 @@
 % Title Page
 \begin{titlepage}
     \begin{center}
-        \vspace*{1cm}
+        \vspace*{.9cm}
         \Huge
-        \textbf{ <Document Titel> }\\
-        \vspace{0.5cm}\Large
-        <Groep>
+        \textbf{ Projectplan \turtleguard }\\
+        \vspace{0.2cm}
+        \small\textit{"Hét ultieme schild-bad voor jouw schildpad"}
 
         \normalsize
 
-        \vspace{0.5cm}
-        \textbf{Vincent van Setten - 1734729}
+
+        
+        \includegraphics[width=0.7\textwidth]{Images/turtleguard.png}
+        \vspace{1cm}
+        \Large\\
+        \textbf{Mede mogelijk gemaakt door} \\
+        \includegraphics[width=0.2\textwidth]{Images/logouni.png}
+
+
         \vfill
-
-        \vspace{0.8cm}
-
-        \includegraphics[width=0.6\textwidth]{Images/logouni.png}
-
-        HU University of Applied Sciences\\
-        The Netherlands\\
-        \today
-    \end{center}
+      \end{center}
+        \textbf{Student:} Vincent van Setten - 1734729 \\
+        \textbf{Opdrachtgever:} HU University of Applied Sciences\\
+        \textbf{Datum:} \today \\
+        \vspace{2cm}
 \end{titlepage}
 
 
@@ -138,7 +147,38 @@
 \end{table}
 \clearpage  % End of the page
 
-\chapter{Introductie}
+\chapter{Algemene Informatie}
+\section{Introductie}
+Dit document dient als project- en testplan voor het \turtleguard systeem. Het \turtleguard systeem wordt verder in detail besproken in hoofdstuk \ref{section-product}.
+Verdere hoofdstukken beschrijven de architectuur van het product, de eisen aan het product en de tests die uitgevoerd zullen worden.
+Het uiteindelijke doel van dit document is het beschrijven van een regelsysteem, in dit geval \turtleguard, welke ten minste twee sensoren en actuatoren bevat. 
+
+\section{Productomschrijving}
+\label{section-product}
+Huisdieren, we zijn er (bijna) allemaal gek op. Vanzelfsprekend is het dus dat we het onze vertrouwde gezelschap zo comfortabel mogelijk willen maken.
+Bij de meeste huisdieren is het relatief simpel, \mbox{zoals} bij een kat of hond. Zorg voor eten, drinken en aandacht en dan zijn ze vaak wel tevreden.
+\par \smallskip
+Helaas is het niet bij alle huisdieren zo eenvoudig. 
+Zo heeft bijvoorbeeld een waterschildpad best strenge eisen aan het water: naast het voeren, moeten bijvoorbeeld ook de temperatuur en de \mbox{pH-waarde} van het water precies goed zijn.  
+Als mens kunnen wij dit niet altijd even eenvoudig controleren. \par \smallskip 
+
+Daarom stellen wij voor: \turtleguard.
+Dit systeem hanteert een specifieke temperatuur voor uw \mbox{waterschildpad} en laat u weten als de waterkwaliteit niet aan de eisen voldoet.
+Met \turtleguard hoeft u zich nooit meer druk te maken of uw schildpad zich wel comfortabel voelt in zijn schild.
+
+\section{Kwaliteitscriteria}
+
+\section{Begrippen}
+
+\chapter{Systeem Architectuur}
+\section{Hardware}
+\section{Software}
+\chapter{Testplan}
+\section{Unit Tests}
+\section{Integratietests}
+\section{Systeemtests}
+\section{Risicoanalyse}
+
 
 \chapter{Bibliografie}
 \nocite{*} % This includes all entries from the .bib file, even if they're not cited in the document
