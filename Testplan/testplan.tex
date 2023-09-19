@@ -254,6 +254,7 @@ Ik ga gebruik maken van de 'Adafruit Peristaltic Liquid Pump with Silicone Tubin
 
 \subsection{Fritzing Diagram}
 Het is van groot belang dat het systeem op de correcte manier wordt aangesloten. Hieronder staat een diagram, welke laat zien hoe elk component verbonden hoort te worden met de microcontroller.
+De 4 relais voor de actuatoren zijn weggelaten. Deze zijn verbonden met het stopcontact, de 4 data-pinnen en de actuatoren.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.9\textwidth]{Images/hardware_sketch_fritzing.png}
@@ -564,6 +565,7 @@ De test wordt als geslaagd beschouwd als de pH-waarde van de sensor binnen 0.05 
 
 
 \section{Systeemtests}
+\subsection{TurtleGuard}
 \begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de systeemtest]
   Deze test richt zich op de juiste werking tussen de verschillende interfaces van het gehele \turtleguard systeem.
 \end{tcolorbox}
