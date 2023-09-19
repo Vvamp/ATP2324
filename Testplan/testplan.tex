@@ -17,10 +17,12 @@
 \usepackage{etoolbox}
 \usepackage{listings}
 \usepackage{xspace}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{nameref}
 \usepackage{tcolorbox}
 \usepackage{textcomp}
+\usepackage{colortbl}
+\usepackage{tabularx}
 \usepackage[printonlyused,withpage]{acronym}
 %%% Je mag zelf PWM implemetneren bij bijv peltierelement of het verwarming relais.
 
@@ -143,6 +145,8 @@
         \hline
         Versie & Datum      & Changes Made  \\
         \hline
+        1.1    & 2023-09-19 & Laatste Versie \\
+        \hline
         1.0    & 2023-09-10 & Eerste Versie \\
         \hline
     \end{tabular}
@@ -150,7 +154,7 @@
 \end{table}
 \clearpage  % End of the page
 
-\chapter{Algemene Informatie}
+\chapter{Het Project}
 \section{Introductie}
 Dit document dient als project- en testplan voor het \turtleguard systeem. Het \turtleguard systeem wordt verder in detail besproken in hoofdstuk \ref{section-product}.
 Verdere hoofdstukken beschrijven de architectuur van het product, de eisen aan het product en de tests die uitgevoerd zullen worden.
@@ -161,26 +165,19 @@ Het uiteindelijke doel van dit document is het beschrijven van een regelsysteem,
 Huisdieren, we zijn er (bijna) allemaal gek op. Vanzelfsprekend is het dus dat we het onze vertrouwde gezelschap zo comfortabel mogelijk willen maken.
 Bij de meeste huisdieren is het relatief simpel, \mbox{zoals} bij een kat of hond. Zorg voor eten, drinken en aandacht en dan zijn ze vaak wel tevreden.
 \par \smallskip
-Helaas is het niet bij alle huisdieren zo eenvoudig. 
-Zo heeft bijvoorbeeld een muskus schildpad best strenge eisen aan het water: naast het voeren, moeten bijvoorbeeld ook de temperatuur en de \mbox{pH-waarde} van het water precies goed zijn.  
-Als mens kunnen wij dit niet altijd even eenvoudig controleren. \par \smallskip 
-
-Daarom stellen wij voor: \turtleguard.
-Dit systeem hanteert een specifieke temperatuur voor uw \mbox{waterschildpad} en laat u weten als de waterkwaliteit niet aan de eisen voldoet.
-Met \turtleguard hoeft u zich nooit meer druk te maken of uw schildpad zich wel comfortabel voelt in zijn schild.
-
-\section{Kwaliteitscriteria}
-
-\section{Begrippen}
-\begin{acronym}
-\acro{TDS}{Total Dissolved Solids}
-\acro{ppm}{Parts Per Million}
-\end{acronym}
+Echter is het niet zo eenvoudig bij alle huisdieren. Zo ook bijvoorbeeld de muskus schildpad.
+Onder de (semi-)aquatische schildpadden is dit dier nog wel vrij eenvoudig, maar toch stelt het vrij strenge eisen om comfortabel en gezond te kunnen leven.
+In het drukke alledaags leven is het dan ook niet altijd een makkelijk om dit allemaal in de gaten te houden.
+Het laatste wat we dan ook willen is thuis komen na een warme zomerdag naar een schildpadden soep.
+\par \smallskip 
+Maak daarom kennis met \turtleguard. Dit simpele, maar nuttige, product houdt de leefomgeving van uw schildpad in de gaten en zorgt er voor dat deze gezond en blij blijft.
+Het systeem houdt met verschillende sensoren de kwaliteit en temperatuur van het water in de gaten. 
+Zo wordt u gesignaleerd als het waterkwaliteit verslechterd en wordt de temperatuur nauw in de gaten gehouden en gereguleerd.
+\par \smallskip 
+Met \turtleguard hoeft u zich nooit meer druk te maken of uw schildpad zich wel comfortabel voelt in zijn schild. 
 
 \chapter{Systeem Architectuur}
 \section{Hardware}
-
-
 \subsection{Sensoren}
 Ik ga gebruik maken van drie verschillende sensoren. Mijn keuzes en het gebruik van deze sensoren licht ik hieronder toe.
 Dit zijn de sensoren die ik ga gebruiken.
@@ -192,18 +189,16 @@ Dit zijn de sensoren die ik ga gebruiken.
 \end{itemize}
 
 \subsubsection{pH meter}
-\paragraph{Gebruik} 
 Een pH meter wordt gebruikt om de zuurgraad van het water te meten. 
 Voor mijn schildpad is een pH van ongeveer 6.5 tot 7.5 nodig. 
 
-\paragraph{Keuze} 
 Om de pH digitaal te kunnen meten, heb ik gekozen voor de  EZO\texttrademark \space pH Circuit. 
 Deze sensor is goed beschikbaar en kan gebruikt worden op 3.3v en 5v. De sensor zelf is verbonden met een breakout board, welke weer verbonden kan worden met een enkele data pin, wat het uitlezen erg eenvoudig maakt.
 
 \subsubsection{TDS Sensor}
 Een manier om kwaliteit van het water te testen, is het meten van deeltjes die in water oplosbaar zijn.
 Dit heet \ac{TDS}. Als de TDS waarde te hoog is, moet het water vervangen worden. 
-De ideale TDS ligt tussen de 125ppm en 300ppm. 
+TDS wordt aangegeven door \ac{ppm}. Dit beschrijft hoeveel deeltjes die oplosbaar zijn in water per miljoen water deeltjes zitten. De ideale TDS ligt tussen de 125ppm en 300ppm. 
 
 \subsubsection{Water Thermometer}
 De thermometer houdt de temperatuur van het water bij. Als het water te koud is, wordt het verwarmt. Als het water te warm is, wordt het verkoeld.
@@ -253,14 +248,207 @@ Hiermee kan de eigenaar het water vervangen, zodra het nodig is.
 \end{figure}
 % TODO: Korte beschrijving over het diagram.
 
-\section{Software}
 
+\section{Software}
+% TODO: Klassendiagram
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Images/classdiagram.png}
+  \caption{\turtleguard Klassendiagram}
+  \label{fig:classdiagram}
+\end{figure}
+
+% Todo: activity diagram
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.3\textwidth]{Images/ActivityDiagram.png}
+  \caption{\turtleguard Activity Diagram}
+  \label{fig:activitydiagram}
+\end{figure}
+
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.9\textwidth]{Images/ActivityDiagramTemp.png}
+  \caption{\turtleguard Temperatuur Manager Activity Diagram}
+  \label{fig:activitydiagramtemperature}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{Images/ActivityDiagramQuality.png}
+  \caption{\turtleguard Water Quality Activity Diagram}
+  \label{fig:activitydiagram}
+\end{figure}
 
 \chapter{Testplan}
+\section{Risicoanalyse}
+\subsection{Risico's}
+Er zijn verschillende risico's die zich kunnen opdoen binnen het systeem indien deze niet (correct) getest wordt.
+Als het systeem verkeerde sensor data binnen krijgt, zal het systeem daar onjuist op reageren. Dit kan vervolgens verergeren en uit de hand lopen. 
+Denk bijvoorbeeld aan het lezen van positieve temperatuur readings als negatief. Om te compenseren voor de 'negatieve' temperaturen, gaat de verwarming aan.
+Als zoiets gebeurt zijn de gevolgen potentieel desastreus. De kans dat dit gebeurt is ook vrij hoog als er niet getest is.
+\par \smallskip 
+Ten tweede kan zich het probleem voordoen data actuators niet reageren op de waardes. 
+Als we bijvoorbeeld de verwarming willen activeren, maar deze activeert niet doordat deze niet goed is verbonden, zal het water niet verwarmd worden.
+Hoewel de kans hiervoor groot is, zijn de gevolgen minder groot dan bij de verkeerde sensor data. Het gevolg is dat het water niet verwarmd of verkoeld kan worden. 
+Afhankelijk van de kamertemperatuur kan dit ongemakkelijk voor de schildpad worden, maar mits het probleem relatief snel opgelost wordt, is het in de meeste gevallen relatief veilig. 
+\par \smallskip 
+Ook bestaat er een kans dat het systeem volledig vastloopt. Zonder voldoende te testen is deze kans vrij groot en de gevolgen hierbij zijn vergelijkbaar bij niet-activerende actuators. 
+Het kan zorgen voor een ongemakkelijke omgeving voor de schildpad, doordat deze niet in zijn ideale temperatuur leeft, maar de schade zal in de meeste gevallen beperkt blijven.
+\par \smallskip
+Daarnaast kan het voorkomen dat het systeem te langzaam is om in realtime te reageren. Er wordt gewerkt met gelimiteerde hardware, dus dit risico bestaat. 
+Doordat het systeem niet extreem complex of groot is, is het risico beperkt. Als de actuatoren niet op tijd reageren op de sensoren, zal dit geen ernstige gevolgen hebben. 
+Hierbij wordt wel uitgegaan van een beperkte vertraging. Als het systeem er vijf minuten over doet om te reageren op een temperatuursverandering, of zelfs een uur, is dit geen grote ramp.
+Water reageert immers uit zichzelf wat vertraagd op temperatuursveranderingen. Pas bij extreem grote vertragingen zal dit merkbare gevolgen kunnen hebben, maar zulke vertragingen zijn zeer onwaarschijnlijk.
+\par \smallskip 
+Binnen het project bestaat er ook een aannemelijke kans voor tijdsnood. Er is een gelimiteerde tijd met daarbij harde deadlines. 
+Als deze om wat voor redenen niet gehaald worden, zijn de gevolgen groot voor het project. 
+
+\subsection{Risico Matrix}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Risico} & \textbf{Kans} & \textbf{Impact} \\
+    \hline 
+    Verkeerde sensor data  & \cellcolor{red} Groot & \cellcolor{red} Groot \\
+    \hline 
+    Niet activerende actuators & \cellcolor{red} Groot & \cellcolor{orange} Medium \\
+    \hline 
+    Crashes &\cellcolor{orange} Medium &\cellcolor{red} Medium  \\  
+    \hline
+    Weinig tijd &\cellcolor{orange} Medium &\cellcolor{red} Groot  \\ 
+    \hline
+    Vertraagde reacties &\cellcolor{green} Klein &\cellcolor{green} Klein  \\  
+    \hline
+  \end{tabular}
+  \caption{Risicomatrix}
+  \label{tab:risicomatrix}
+\end{table}
+
+\section{Kwaliteit}
+Aan de hand van de kenmerken gedefinieerd in ISO 25010 wordt dit testplan samengesteld, om zo vast te kunnen stellen dat het systeem werkt naar behoren en voldoet aan de kwaliteitseisen.
+In onderstaande tabel wordt beschreven hoe elk kenmerk wordt toegepast binnen het testplan om te zorgen dat het systeem hieraan voldoet.
+
+\begin{table}[h]
+  \centering
+  \begin{tabularx}{\textwidth}{|l|X|}
+    \hline
+    \textbf{Kenmerk} & \textbf{Omschrijving} \\
+    \hline 
+    \textbf{Functionaliteit} & Testen van de correcte werking van de sensoren en actuatoren, inclusief pH, TDS en temperatuurmetingen. \\ 
+    \hline
+    \textbf{Betrouwbaarheid} & Evalueren van de stabiliteit en nauwkeurigheid van het systeem, met focus op foutafhandeling. \\ 
+    \hline
+    \textbf{Bruikbaarheid} & Valideren van de gebruiksvriendelijkheid van de gebruikersinterface en de leesbaarheid van de sensorgegevens. \\ 
+    \hline
+    \textbf{Prestaties} & Beoordelen van de reactiesnelheid van het systeem en de verwerkingssnelheid van de sensordata. \\
+    \hline
+    \textbf{Onderhoudbaarheid} & Beoordelen van de modulariteit en documentatie van de code voor toekomstige aanpassingen. \\
+    \hline
+    \textbf{Compatibiliteit} & Vaststellen van de compatibiliteit van het systeem met verschillende hardwarecomponenten. \\
+    \hline
+    \textbf{Beveiliging} & Aandacht voor het voorkomen van ongeautoriseerde toegang tot het systeem, hoewel dit een lagere prioriteit heeft. \\
+    \hline
+  \end{tabularx}
+  \caption{ISO 25010 Kenmerken}
+  \label{tab:25010_specs}
+\end{table}
+
+
+
+\begin{table}[h]
+  \centering
+  \begin{tabularx}{\textwidth}{|l|X|X|X|X|X|}
+    \hline
+    \textbf{Kwaliteitskenmerken} & \textbf{Relatief \newline belang \newline (\%)} & \textbf{Hardware \newline unit test} & \textbf{Software \newline unit test} & \textbf{HW/SW \newline integratietest} & \textbf{Systeemtest} \\
+    \hline 
+    Functionaliteit & 25\% & ++ & ++ &  &  \\ 
+    \hline
+    Betrouwbaarheid & 25\% & ++ & ++ &  & ++ \\ 
+    \hline
+    Bruikbaarheid & 15\% &  &  &  & ++ \\ 
+    \hline
+    Prestaties & 15\% &  &  & ++ &  \\ 
+    \hline
+    Onderhoudbaarheid & 10\% &  &  &  & + \\ 
+    \hline
+    Compatibiliteit & 10\% &  &  &  & + \\ 
+    \hline
+    Beveiliging & 0\% &  &  &  &  \\ 
+    \hline
+  \end{tabularx}
+  \caption{ISO 25010 Prioriteiten}
+  \label{tab:25010_priorities}
+\end{table}
+
+%De relatieve belangrijkheid in de tabel is gebaseerd op de specifieke behoeften van dit project. "Functionaliteit" en "Betrouwbaarheid" zijn het meest cruciaal, elk met een gewicht van 25\%. Dit komt omdat het systeem niet alleen correct moet functioneren, maar ook betrouwbaar moet zijn om het welzijn van de waterschildpadden te waarborgen. "Bruikbaarheid" en "Prestaties" volgen met elk 15\%, aangezien het systeem gebruiksvriendelijk en responsief moet zijn. "Onderhoudbaarheid" en "Compatibiliteit" zijn ook belangrijk maar in mindere mate, vandaar de 10\%. "Beveiliging" heeft een belangrijkheid van 0\% omdat het systeem niet is verbonden met het internet en het primaire risico fysieke manipulatie is, wat buiten de scope van dit project valt.
+
+% Het belangrijkste punt aan \turtleguard is dat het betrouwbaar is. Zodra het product geïnstalleerd is, wil je dat het gewoon werkt en dat het blijft werken. Het laatste wat je wil is dat het verwarmingselement stopt met werken tijdens lunchtijd.
+% Daarnaast is het ook belangrijk dat het systeem makkelijk is te installeren en te gebruiken. Het gehele doel is immers om het leven makkelijker te maken en tijd te besparen, niet het tegenovergestelde.
+% Daarom zijn de drie belangrijkste punten, gedefinieerd onder ISO 25010, als volgt:
+% \begin{enumerate}
+%   \item Betrouwbaarheid
+%   \item Bruikbaarheid
+%   \item Overdraagbaarheid
+% \end{enumerate}
+
 \section{Unit Tests}
+
+\subsection{Water thermometer}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de Unit]
+Deze unit test richt zich op het meten van de werking en nauwkeurigheid van de water temperatuursensor (DS18B20). 
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
+Verifiëren dat de water temperatuursensor nauwkeurige en betrouwbare metingen levert.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+Het waarborgen van de nauwkeurigheid van de water temperatuursensor is cruciaal voor het welzijn van de schildpadden en de algehele betrouwbaarheid van het \turtleguard-systeem.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
+  % wanneer kan de test uitgevoerd worden?
+  \begin{itemize}
+    \item De sensor is verbonden zoals beschreven in de hardware schetsen 
+    \item De code om met de sensor te communiceren is opgezet 
+  \end{itemize}
+\end{tcolorbox}
+
+
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
+  \begin{enumerate}
+    \item Dompel de sensor onder in een bak met water 
+    \item Meet de temperatuur van de bak met water met een thermometer, waarvan bekend is dat deze accuraat is 
+    \item Noteer de water temperatuur uitgelezen via het \turtleguard systeem. 
+    \item Vergelijk de twee waardes. 
+    \item Herhaal het experiment driemaal met een tussenpozen van 15 minuten. 
+  \end{enumerate}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+De test wordt als geslaagd beschouwd als de uitvoer van de sensor binnen 0.5 \textdegree c van de bekende temperatuur ligt.
+\end{tcolorbox}
+
+
 \section{Integratietests}
 \section{Systeemtests}
-\section{Risicoanalyse}
+
+
+\chapter{Planning}
+
+
+
+\chapter{Begrippen}
+\begin{acronym}
+\acro{TDS}{Total Dissolved Solids}
+\acro{ppm}{Parts Per Million}
+\end{acronym}
 
 
 \chapter{Bibliografie}

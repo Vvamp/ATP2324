@@ -1,0 +1,86 @@
+@startuml ActivityDiagram
+skinparam linetype ortho
+
+start 
+:Check water temperature;
+:Check water quality;
+' While true 
+'(parallel) check water temp 
+'(parallel) check water quality
+end
+@enduml
+
+@startuml ActivityDiagramTemp
+start
+
+fork 
+    :Read Water Temperature;
+fork again 
+    :Read Room Temperature;
+end merge 
+
+if (water warmer than room?) is (yes) then 
+   if (water above target temperature?) is (yes) then 
+        :Turn on cooler;
+    else 
+        if (water more than 3 degrees below target temperature?) is (yes) then 
+            :Turn on heater;
+        endif
+   endif
+else (no)
+    if (water below target temperature?) is (yes) then 
+        :Turn on heater;
+    else 
+        if (water more than 3 degrees above target temperature?) is (yes) then 
+            :Turn on cooler;
+        endif
+   endif
+endif
+' Temp -> check 
+' (parallel) Read Water Temperature
+' (parallel) Read Room Temperature
+' (close parallel)
+' if water temperature > room temperature
+'' if water temperature > target temperature: cooler 
+'' if water temprature < target temperature: heater!
+' if water temperature < room temperature
+'' if water temperature > target temperature: cooler!
+'' if water temperature < target temperature: heater
+
+' when a !: definitely turn on
+' when no !: only turn on when outside the +3 or -3 celsius range(be settable) 
+end
+@enduml 
+
+@startuml ActivityDiagramQuality
+start
+:Clear bad water quality notifications;
+fork 
+    :Read pH value;
+    if (pH > max pH value?) is (yes) then 
+        :Notify bad water quality;
+
+    endif
+fork again 
+    :Read tds value;
+    if (tds > max tds value?) is (yes) then 
+        :Notify bad water quality;
+    endif
+end merge 
+
+
+
+' Quality -> check
+' (parallel) Read ph value
+' (parallel) Read tds value
+' (close parallel)
+' if ph value > max value: 
+'' turn on
+'' else turn off
+' if tds value > max value:
+'' turn on 
+'' else turn off
+
+end
+
+@enduml

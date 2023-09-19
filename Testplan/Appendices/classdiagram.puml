@@ -1,0 +1,116 @@
+@startuml ClassDiagram
+skinparam linetype ortho
+' !theme reddress-darkblue
+
+interface IThermometer{
+    + ReadTemperature()
+}
+
+interface IQualityNotifier{
+    + ShowNotification()
+    + ClearNotification()
+}
+
+interface ICooler{
+    + TurnOn()
+    + TurnOff()
+}
+interface IHeater{
+    + TurnOn()
+    + TurnOff()
+}
+
+interface IpHSensor{
+    + ReadPH()
+}
+interface ITDSSensor{
+    + ReadTDS()
+}
+
+class TurtleGuard{
+    - temperatureManager : TemperatureManager
+    - waterQualityManager : WaterQualityManager
+    + main()
+    
+}
+
+'' Checks water temperature. Checks which needs to be emnabled(cooler or heater)
+class TemperatureManager{
+    - waterThermometer : IThermometer
+    - roomThermometer : IThermometer
+    - heater : IHeater
+    - cooler : ICooler
+    - targetTemperature : float
+    + setWaterTemperature(celsius : float)
+    + Check()
+
+}
+
+'' Notifies whoever needs
+class WaterQualityManager{
+    - ledNotifier : IQualityNotifier
+    - phSensor : IpHSensor
+    - tdsSensor : ITDSSensor   
+    - maxTDS : int 
+    - minPH : float 
+    - maxPH : float 
+    + setMaxTDS(tds_value : int)
+    + setPHLimits(min_ph : float, max_ph: float)
+    + Check()
+}
+
+class DS18B20{
+    - data_pin : int
+    # Read() : float
+}
+
+class MCP9808{
+    - I2C_Address : int
+    # Read() : float
+}
+
+class PHCircuit{
+    - tx_port : int 
+    - rx_port: int
+    # Read() : float
+}
+
+class ConductivityCircuit{
+    - tx_port : int 
+    - rx_port: int
+    # Read() : float
+}
+
+class LED{
+    - pin_number : int
+    + TurnOn()
+    + TurnOff()
+}
+
+'Moet er nog een tussenstap tussen relais? Moet relais ook een interface zijn? Moet eigenlijk ook PWM hebben. Hoe of wat?' 
+class Relais{
+    - pin_number : int
+    + TurnOn()
+    + TurnOff()
+}
+
+IThermometer --|> DS18B20
+IThermometer --|> MCP9808
+IpHSensor --|> PHCircuit
+ITDSSensor --|> ConductivityCircuit
+IQualityNotifier --|> LED
+IHeater --|> Relais
+ICooler --|> Relais
+
+WaterQualityManager -- IpHSensor
+WaterQualityManager -- ITDSSensor
+WaterQualityManager -- IQualityNotifier
+TemperatureManager -- IThermometer
+TemperatureManager -- IHeater
+TemperatureManager -- ICooler
+
+' Moet 'dependency' zijn(contains and can't live without)
+TurtleGuard -- WaterQualityManager
+TurtleGuard -- TemperatureManager
+
+@enduml
