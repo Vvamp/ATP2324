@@ -22,6 +22,7 @@
 \usepackage{tcolorbox}
 \usepackage{textcomp}
 \usepackage{colortbl}
+\usepackage{glossaries}
 \usepackage{tabularx}
 \usepackage{float}
 \usepackage[printonlyused,withpage]{acronym}
@@ -102,6 +103,21 @@
 }
 \newcommand{\turtleguard}{\mbox{TurtleGuard\texttrademark}\xspace}
 
+
+% Glossary
+
+\makeglossaries
+\newglossaryentry{actuator}{
+  name=Actuator,
+  description={Een component verantwoordelijk voor het bewegen of besturen van een mechanisme of systeem}
+}
+
+\newglossaryentry{sensor}{
+  name=Sensor,
+  description={Een apparaat dat een fysieke eigenschap detecteert of meet en deze registreert, aangeeft of er op andere wijze op reageert}
+}
+
+
 % Document
 \begin{document}
 
@@ -173,13 +189,13 @@ Het laatste wat we dan ook willen is thuis komen na een warme zomerdag naar een 
 \par \smallskip 
 Maak daarom kennis met \turtleguard. Dit simpele, maar nuttige, product houdt de leefomgeving van uw schildpad in de gaten en zorgt er voor dat deze gezond en blij blijft.
 Het systeem houdt met verschillende sensoren de kwaliteit en temperatuur van het water in de gaten. 
-Zo wordt u gesignaleerd als het waterkwaliteit verslechterd en wordt de temperatuur nauw in de gaten gehouden en gereguleerd.
+Zo worden de temperatuur en pH waardes nauw in de gaten gehouden en gereguleerd.
 \par \smallskip 
 Met \turtleguard hoeft u zich nooit meer druk te maken of uw schildpad zich wel comfortabel voelt in zijn schild. 
 
 \chapter{Systeem Architectuur}
 \section{Hardware}
-Het systeem zal draaien op de Arduino Due. Deze microcontroller heeft genoeg pinnen om alles aan te sturen, heeft gemakkelijke interfaces voor UART en I2C. Ook heb ik ervaring met het gebruik van deze microcontroller.
+Het systeem zal draaien op de Arduino Due. Deze microcontroller heeft genoeg pinnen om alles aan te sturen, heeft gemakkelijke interfaces voor UART en I2C. Ook heb ik al ervaring met het gebruik van deze microcontroller.
 De verschillende sensoren en actuatoren zullen verbonden worden met de Arduino Due. 
 
 \subsection{Sensoren}
@@ -188,15 +204,16 @@ Dit zijn de sensoren die ik ga gebruiken.
 \begin{itemize}
   \item EZO\texttrademark \space pH Circuit (pH meter)
   \item DS18B20 (Water Thermometer)
-  \item Adafruit MCP9808 (Lucht Thermometer)
+  \item Adafruit MCP9808 (Kamer Thermometer)
 \end{itemize}
 
 \subsubsection{pH meter}
 Een pH meter wordt gebruikt om de zuurgraad van het water te meten. 
-Voor mijn schildpad is een pH van ongeveer 6.5 tot 7.5 nodig. 
+Voor mijn schildpad is een pH van ongeveer 6.5 tot 7.5 nodig\cite{TheAquariumGuide}. 
 
 Om de pH digitaal te kunnen meten, heb ik gekozen voor de  EZO\texttrademark \space pH Circuit. 
 Deze sensor is goed beschikbaar en kan gebruikt worden op 3.3v en 5v. De sensor zelf is verbonden met een breakout board, welke weer verbonden kan worden met een enkele data pin, wat het uitlezen erg eenvoudig maakt.
+De sensor wordt verbonden met de Arduino over I2C. 
 
 % \subsubsection{TDS Sensor}
 % Een manier om kwaliteit van het water te testen, is het meten van deeltjes die in water oplosbaar zijn.
@@ -205,7 +222,8 @@ Deze sensor is goed beschikbaar en kan gebruikt worden op 3.3v en 5v. De sensor 
 
 \subsubsection{Water Thermometer}
 De thermometer houdt de temperatuur van het water bij. Als het water te koud is, wordt het verwarmt. Als het water te warm is, wordt het verkoeld.
-De ideale temperatuur voor de muskus schildpad is ongeveer 25 \textdegree c. Het water mag zo'n 3 \textdegree c warmer of kouder zijn.
+De ideale temperatuur voor de muskus schildpad is ongeveer 25 \textdegree c \cite{picard2011common}. Het water mag zo'n 3 \textdegree c warmer of kouder zijn.
+De water thermometer die ik ga gebruiken is de DS18B20. Deze wordt verbonden met een enkele data kabel.
 
 \subsubsection{Omgeving Thermometer}
 Ook is er een thermometer voor de temperatuur van de omgeving. Deze wordt gebruikt om te controleren hoe warm of koud het is in de omgeving. Hiermee kunnen we kijken of we verwachten dat het water warmer of kouder gaat worden.
@@ -213,6 +231,7 @@ Als het bijvoorbeeld 35 \textdegree c is, zal het waarschijnlijk niet nodig zijn
 
 Deze zal worden gebruikt in combinatie met de water temperatuur. Als bijvoorbeeld de omgevingstemperatuur 30 \textdegree c is en het water is 29 \textdegree c, zal het verwarmingselement uit moeten blijven totdat de omgevingstemperatuur weer onder de 25 \textdegree c zakt. Tot die tijd zal verkoeling nodig zijn tot het water temperatuur rond de 25 \textdegree c is.
 
+De thermometer die ik ga gebruiken is de Adafruit MCP9808. Dit is een erg populaire thermometer voor Arduino's en maakt gebruikt van UART.
 
 \subsection{Actuatoren}
 Binnen het project ga ik gebruik maken van een aantal actuatoren, welke worden aangestuurd door de boven genoemde sensoren.
@@ -300,7 +319,7 @@ Voor het gemak is een activity diagram gemaakt voor elk van deze systemen. De ma
 De temperatuur manager is verantwoordelijk voor het meten en waarborgen van de correcte temperaturen binnen het \turtleguard systeem.
 Op basis van omgevingstemperatuur en watertemperatuur worden het verwarmingselement en het verkoelingselement aangestuurd.
 De gebruiker stelt vooraf een ideale temperatuur in. Het systeem zorgt er voor dat de temperatuur van het aquarium binnen 3\textdegree c van de ideale temperatuur blijft.
-Er is gekozen voor een waarde van 3 \textdegree c, omdat dit nog volledig comfortabel is voor de muskus schildpad. Muskus schildpad hebben een voorkeur aan temperaturen van x tot x.
+Er is gekozen voor een waarde van 3 \textdegree c, omdat dit nog volledig comfortabel is voor de muskus schildpad. Muskus schildpad hebben een voorkeur aan temperaturen van rond de 25 \textdegree c\cite{picard2011common}.
 De werking van het systeem staat beschreven in het activity diagram hier onder.
 
 \begin{figure}[H]
@@ -371,16 +390,16 @@ Als deze om wat voor redenen niet gehaald worden, zijn de gevolgen groot voor he
 \end{table}
 
 \section{Kwaliteit}
-Aan de hand van de kenmerken gedefinieerd in ISO 25010 wordt dit testplan samengesteld, om zo vast te kunnen stellen dat het systeem werkt naar behoren en voldoet aan de kwaliteitseisen.
+Aan de hand van de kenmerken gedefinieerd in ISO 25010\cite{ISO25010} wordt dit testplan samengesteld, om zo vast te kunnen stellen dat het systeem werkt naar behoren en voldoet aan de kwaliteitseisen.
 In onderstaande tabel wordt beschreven hoe elk kenmerk wordt toegepast binnen het testplan om te zorgen dat het systeem hieraan voldoet.
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{|l|X|}
     \hline
     \textbf{Kenmerk} & \textbf{Omschrijving} \\
     \hline 
-    \textbf{Functionaliteit} & Testen van de correcte werking van de sensoren en actuatoren, inclusief pH, TDS en temperatuurmetingen. \\ 
+    \textbf{Functionaliteit} & Testen van de correcte werking van de sensoren en actuatoren, inclusief pH en temperatuurmetingen. \\ 
     \hline
     \textbf{Betrouwbaarheid} & Evalueren van de stabiliteit en nauwkeurigheid van het systeem, met focus op foutafhandeling. \\ 
     \hline
@@ -403,8 +422,10 @@ In onderstaande tabel wordt beschreven hoe elk kenmerk wordt toegepast binnen he
 Voor het \turtleguard systeem is functionaliteit en betrouwbaarheid het belangrijkste punt. 
 Het systeem moet goed werken en mag niet zomaar kapot gaan, omdat de gezondheid van de schildpad hiervan afhankelijk is.
 Beveiliging is daarentegen niet belangrijk. Het systeem gaat immers niet met gevoelige data aan de gang. Het regelt simpelweg het water van een schildpad.
+Functionaliteit kan goed getest worden met unit tests, omdat er specifiek getest kan worden of de sensoren en actuatoren doen wat ze horen te doen. 
+Daarnaast kan betrouwbaarheid hiermee goed getest worden, omdat er zichtbaar is hoe consistent de lezingen van sensoren zijn. 
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \begin{tabularx}{\textwidth}{|l|X|X|X|X|X|}
     \hline
@@ -422,7 +443,7 @@ Beveiliging is daarentegen niet belangrijk. Het systeem gaat immers niet met gev
     \hline
     Compatibiliteit & 5\% &  &  &  & + \\ 
     \hline
-    Beveiliging & 0\% &  &  &  &  \\ 
+    Beveiliging & 0\% &  & + &  & + \\ 
     \hline
   \end{tabularx}
   \caption{ISO 25010 Prioriteiten}
@@ -523,7 +544,7 @@ De test wordt als geslaagd beschouwd als de pH-waarde van de sensor binnen 0.05 
 
 
 \section{Integratietests}
-\subsection{Integratietest: pH dosering pomp}
+\subsection{pH dosering pomp}
 \begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de interface]
   Deze test richt zich op de interface tussen de pH-sensor en de doseringspompen die pH-verhogende en pH-verlagende chemicaliën toevoegen.
 \end{tcolorbox}
@@ -604,16 +625,53 @@ De test wordt als geslaagd beschouwd als de pH-waarde van de sensor binnen 0.05 
 \end{tcolorbox}
 
 
-\chapter{Deliverables}
+\chapter{Test Deliverables}
+\section{Voor de testfase}
+Voor de testfase zal er een projectplan en een testplan opgeleverd worden. Deze zal eerst goedgekeurd worden voordat het systeem ontwikkeld zal worden. 
+Het projectplan en het testplan zullen opgeleverd worden als een enkel, gecombineerd document. 
+Daarnaast zal voor het testen het systeem opgeleverd worden.
+\begin{itemize}
+    \item Projectplan
+    \item Testplan
+    \item \turtleguard systeem
+\end{itemize}
+\section{Tijdens de testfase}
+Tijdens de testfase zullen testresultaten genoteerd worden, om later opgenomen te kunnen worden in het testrapport. 
+\begin{itemize}
+  \item Testresultaten
+\end{itemize}
+\section{Na de testfase}
+Na de testfase zullen de resultaten gepubliceerd worden in een testrapport. 
+\begin{itemize}
+    \item Testrapport
+\end{itemize}
 
 \chapter{Planning}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+    \textbf{Taak} & \textbf{Geschatte inspanning} & \textbf{Oplevering} \\
+    \hline
+    Testplan maken  & 28 uur & 2023-9-19\\
+    \hline
+    Systeem ontwikkelen & 74 uur & 2023-11-4 \\
+    \hline
+    Testuitvoering  & 4 uur & 2023-11-6 \\
+    \hline
+    Testrapport & 10 uur & 2023-11-7 \\
+    \hline
+    \textbf{Totaal} &  116 uur & - \\
+    \hline
+  \end{tabular}
+  \caption{Testinschatting}
+\end{table}
 
 
-\chapter{Begrippen}
-\begin{acronym}
-\acro{TDS}{Total Dissolved Solids}
-\acro{ppm}{Parts Per Million}
-\end{acronym}
+% \chapter{Begrippen}
+% \glsaddall 
+% \printglossaries
+
 
 
 \chapter{Bibliografie}
@@ -625,6 +683,6 @@ De test wordt als geslaagd beschouwd als de pH-waarde van de sensor binnen 0.05 
 \bibliography{bronnen}
 \endgroup
 
-\chapter{Bijlagen}
+% \chapter{Bijlagen}
 
 \end{document}
