@@ -183,7 +183,6 @@ Ik ga gebruik maken van drie verschillende sensoren. Mijn keuzes en het gebruik 
 Dit zijn de sensoren die ik ga gebruiken.
 \begin{itemize}
   \item EZO\texttrademark \space pH Circuit (pH meter)
-  \item EZO\texttrademark \space Conductivity Circuit (TDS Sensor)
   \item DS18B20 (Water Thermometer)
   \item Adafruit MCP9808 (Lucht Thermometer)
 \end{itemize}
@@ -219,6 +218,7 @@ De actuatoren zal ik hieronder verder toelichten. Ik ga de volgende actuatoren g
   \item Peltier element geschakeld met PWM dmv een relais
   \item Verwarmingselement, geschakeld met een relais (Exo Terra Turtle Heater(50w).)
   \item LED 
+  \item pH Dosering pomp, geschakeld met een relais.
 \end{itemize}
 
 \subsubsection{Peltier Element}
@@ -233,6 +233,11 @@ Deze wordt ook geschakeld met een relais, zodat het water niet verwarmd blijft w
 
 Ik ga gebruik maken van de Exo Terra Turtle Heater(50w).
 Deze houdt het water standaard al op 25 \textdegree c. 
+
+\subsubsection{pH Dosering pomp}
+Om te zorgen dat ph in een veilig en gezond bereik blijft, wordt de dosering pomp gebruikt. 
+Zodra de pH waarde in het aquarium te hoog of te laag wordt, worden er pH verhogende of verlagende chemicaliën toegevoegd aan het aquarium.
+
 
 \subsubsection{LED}
 Als laatste hebben we een simpele LED als actuator. Deze gaat branden om aan te geven dat het water niet van voldoende kwaliteit is.
@@ -365,17 +370,17 @@ In onderstaande tabel wordt beschreven hoe elk kenmerk wordt toegepast binnen he
     \hline
     \textbf{Kwaliteitskenmerken} & \textbf{Relatief \newline belang \newline (\%)} & \textbf{Hardware \newline unit test} & \textbf{Software \newline unit test} & \textbf{HW/SW \newline integratietest} & \textbf{Systeemtest} \\
     \hline 
-    Functionaliteit & 25\% & ++ & ++ &  &  \\ 
+    Functionaliteit & 30\% & ++ & ++ &  &  \\ 
     \hline
-    Betrouwbaarheid & 25\% & ++ & ++ &  & ++ \\ 
+    Betrouwbaarheid & 30\% & ++ & ++ &  & ++ \\ 
     \hline
     Bruikbaarheid & 15\% &  &  &  & ++ \\ 
     \hline
     Prestaties & 15\% &  &  & ++ &  \\ 
     \hline
-    Onderhoudbaarheid & 10\% &  &  &  & + \\ 
+    Onderhoudbaarheid & 5\% &  &  &  & + \\ 
     \hline
-    Compatibiliteit & 10\% &  &  &  & + \\ 
+    Compatibiliteit & 5\% &  &  &  & + \\ 
     \hline
     Beveiliging & 0\% &  &  &  &  \\ 
     \hline
@@ -437,7 +442,62 @@ De test wordt als geslaagd beschouwd als de uitvoer van de sensor binnen 0.5 \te
 
 
 \section{Integratietests}
+\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de Unit]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
+  Het testen van het verwarming circuit
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
+  % wanneer kan de test uitgevoerd worden?
+  \begin{itemize}
+    \item
+  \end{itemize}
+\end{tcolorbox}
+
+
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
+  \begin{enumerate}
+    \item
+  \end{enumerate}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+\end{tcolorbox}
+
+
 \section{Systeemtests}
+\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de Unit]
+  
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
+  Zien of de ph waarde blijft
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
+  % wanneer kan de test uitgevoerd worden?
+  \begin{itemize}
+    \item
+  \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
+  \begin{enumerate}
+    \item    
+  \end{enumerate}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+\end{tcolorbox}
 
 
 \chapter{Planning}

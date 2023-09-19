@@ -27,6 +27,11 @@ interface ITDSSensor{
     + ReadTDS()
 }
 
+interface IPHDosingPump{
+    + TurnOn()
+    + TurnOff()
+}
+
 class TurtleGuard{
     - temperatureManager : TemperatureManager
     - waterQualityManager : WaterQualityManager
@@ -50,11 +55,11 @@ class TemperatureManager{
 class WaterQualityManager{
     - ledNotifier : IQualityNotifier
     - phSensor : IpHSensor
-    - tdsSensor : ITDSSensor   
+    - increasingPHPump : IPHDosingPump
+    - decreasingPHPump : IPHDosingPump
     - maxTDS : int 
     - minPH : float 
     - maxPH : float 
-    + setMaxTDS(tds_value : int)
     + setPHLimits(min_ph : float, max_ph: float)
     + Check()
 }
@@ -70,12 +75,6 @@ class MCP9808{
 }
 
 class PHCircuit{
-    - tx_port : int 
-    - rx_port: int
-    # Read() : float
-}
-
-class ConductivityCircuit{
     - tx_port : int 
     - rx_port: int
     # Read() : float
@@ -97,14 +96,14 @@ class Relais{
 IThermometer --|> DS18B20
 IThermometer --|> MCP9808
 IpHSensor --|> PHCircuit
-ITDSSensor --|> ConductivityCircuit
 IQualityNotifier --|> LED
 IHeater --|> Relais
 ICooler --|> Relais
+IPHDosingPump --|> Relais
 
 WaterQualityManager -- IpHSensor
-WaterQualityManager -- ITDSSensor
 WaterQualityManager -- IQualityNotifier
+WaterQualityManager -- IPHDosingPump
 TemperatureManager -- IThermometer
 TemperatureManager -- IHeater
 TemperatureManager -- ICooler
