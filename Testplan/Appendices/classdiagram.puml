@@ -1,115 +1,95 @@
 @startuml ClassDiagram
 skinparam linetype ortho
-' !theme reddress-darkblue
 
 interface IThermometer{
-    + ReadTemperature()
-}
-
-interface IQualityNotifier{
-    + ShowNotification()
-    + ClearNotification()
+    + readTemperature() : float
 }
 
 interface ICooler{
-    + TurnOn()
-    + TurnOff()
+    + turnOn() : void
+    + turnOff() : void
 }
+
 interface IHeater{
-    + TurnOn()
-    + TurnOff()
+    + turnOn() : void
+    + turnOff() : void
 }
 
 interface IpHSensor{
-    + ReadPH()
-}
-interface ITDSSensor{
-    + ReadTDS()
+    + readPH() : float
 }
 
 interface IPHDosingPump{
-    + TurnOn()
-    + TurnOff()
+    + turnOn() : void
+    + turnOff() : void
 }
 
 class TurtleGuard{
     - temperatureManager : TemperatureManager
     - waterQualityManager : WaterQualityManager
-    + main()
-    
+    + main() : void
 }
 
-'' Checks water temperature. Checks which needs to be emnabled(cooler or heater)
 class TemperatureManager{
     - waterThermometer : IThermometer
     - roomThermometer : IThermometer
     - heater : IHeater
     - cooler : ICooler
     - targetTemperature : float
-    + setWaterTemperature(celsius : float)
-    + Check()
-
+    + setWaterTemperature(celsius : float) : void
+    + checkTemperatureRange() : void
+    + enableHeater() : void
+    + enableCooler() : void
 }
 
-'' Notifies whoever needs
 class WaterQualityManager{
-    - ledNotifier : IQualityNotifier
     - phSensor : IpHSensor
     - increasingPHPump : IPHDosingPump
     - decreasingPHPump : IPHDosingPump
-    - maxTDS : int 
     - minPH : float 
     - maxPH : float 
-    + setPHLimits(min_ph : float, max_ph: float)
-    + Check()
+    + setPHLimits(minPH : float, maxPH: float) : void
+    + checkWaterQuality() : void
+    + enableIncreasingPump() : void
+    + enableDecreasingPump() : void
 }
 
 class DS18B20{
-    - data_pin : int
-    # Read() : float
+    - dataPin : int
+    + read() : float
 }
 
 class MCP9808{
-    - I2C_Address : int
-    # Read() : float
+    - I2CAddress : int
+    + read() : float
 }
 
 class PHCircuit{
-    - tx_port : int 
-    - rx_port: int
-    # Read() : float
+    - txPort : int 
+    - rxPort: int
+    + read() : float
 }
 
-class LED{
-    - pin_number : int
-    + TurnOn()
-    + TurnOff()
-}
-
-'Moet er nog een tussenstap tussen relais? Moet relais ook een interface zijn? Moet eigenlijk ook PWM hebben. Hoe of wat?' 
-class Relais{
-    - pin_number : int
-    + TurnOn()
-    + TurnOff()
+class Relay{
+    - pinNumber : int
+    + turnOn() : void
+    + turnOff() : void
 }
 
 IThermometer --|> DS18B20
 IThermometer --|> MCP9808
 IpHSensor --|> PHCircuit
-IQualityNotifier --|> LED
-IHeater --|> Relais
-ICooler --|> Relais
-IPHDosingPump --|> Relais
+IHeater --|> Relay
+ICooler --|> Relay
+IPHDosingPump --|> Relay
 
-WaterQualityManager -- IpHSensor
-WaterQualityManager -- IQualityNotifier
-WaterQualityManager -- IPHDosingPump
-TemperatureManager -- IThermometer
-TemperatureManager -- IHeater
-TemperatureManager -- ICooler
+WaterQualityManager *-- "1" IpHSensor
+WaterQualityManager *-- "1" IPHDosingPump
+TemperatureManager  *-- "2" IThermometer
+TemperatureManager *-- "1" IHeater
+TemperatureManager *-- "1" ICooler
 
-' Moet 'dependency' zijn(contains and can't live without)
-TurtleGuard -- WaterQualityManager
-TurtleGuard -- TemperatureManager
+TurtleGuard *-- "1" WaterQualityManager
+TurtleGuard *-- "1" TemperatureManager
 
 @enduml

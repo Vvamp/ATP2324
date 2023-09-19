@@ -23,6 +23,7 @@
 \usepackage{textcomp}
 \usepackage{colortbl}
 \usepackage{tabularx}
+\usepackage{float}
 \usepackage[printonlyused,withpage]{acronym}
 %%% Je mag zelf PWM implemetneren bij bijv peltierelement of het verwarming relais.
 
@@ -145,7 +146,7 @@
         \hline
         Versie & Datum      & Changes Made  \\
         \hline
-        1.1    & 2023-09-19 & Laatste Versie \\
+        1.1    & 2023-09-19 & Tweede Versie \\
         \hline
         1.0    & 2023-09-10 & Eerste Versie \\
         \hline
@@ -178,6 +179,9 @@ Met \turtleguard hoeft u zich nooit meer druk te maken of uw schildpad zich wel 
 
 \chapter{Systeem Architectuur}
 \section{Hardware}
+Het systeem zal draaien op de Arduino Due. Deze microcontroller heeft genoeg pinnen om alles aan te sturen, heeft gemakkelijke interfaces voor UART en I2C. Ook heb ik ervaring met het gebruik van deze microcontroller.
+De verschillende sensoren en actuatoren zullen verbonden worden met de Arduino Due. 
+
 \subsection{Sensoren}
 Ik ga gebruik maken van drie verschillende sensoren. Mijn keuzes en het gebruik van deze sensoren licht ik hieronder toe.
 Dit zijn de sensoren die ik ga gebruiken.
@@ -194,16 +198,15 @@ Voor mijn schildpad is een pH van ongeveer 6.5 tot 7.5 nodig.
 Om de pH digitaal te kunnen meten, heb ik gekozen voor de  EZO\texttrademark \space pH Circuit. 
 Deze sensor is goed beschikbaar en kan gebruikt worden op 3.3v en 5v. De sensor zelf is verbonden met een breakout board, welke weer verbonden kan worden met een enkele data pin, wat het uitlezen erg eenvoudig maakt.
 
-\subsubsection{TDS Sensor}
-Een manier om kwaliteit van het water te testen, is het meten van deeltjes die in water oplosbaar zijn.
-Dit heet \ac{TDS}. Als de TDS waarde te hoog is, moet het water vervangen worden. 
-TDS wordt aangegeven door \ac{ppm}. Dit beschrijft hoeveel deeltjes die oplosbaar zijn in water per miljoen water deeltjes zitten. De ideale TDS ligt tussen de 125ppm en 300ppm. 
+% \subsubsection{TDS Sensor}
+% Een manier om kwaliteit van het water te testen, is het meten van deeltjes die in water oplosbaar zijn.
+% Dit heet \ac{TDS}. Als de TDS waarde te hoog is, moet het water vervangen worden. 
+% TDS wordt aangegeven door \ac{ppm}. Dit beschrijft hoeveel deeltjes die oplosbaar zijn in water per miljoen water deeltjes zitten. De ideale TDS ligt tussen de 125ppm en 300ppm. 
 
 \subsubsection{Water Thermometer}
 De thermometer houdt de temperatuur van het water bij. Als het water te koud is, wordt het verwarmt. Als het water te warm is, wordt het verkoeld.
 De ideale temperatuur voor de muskus schildpad is ongeveer 25 \textdegree c. Het water mag zo'n 3 \textdegree c warmer of kouder zijn.
 
-% Wss onnodig...
 \subsubsection{Omgeving Thermometer}
 Ook is er een thermometer voor de temperatuur van de omgeving. Deze wordt gebruikt om te controleren hoe warm of koud het is in de omgeving. Hiermee kunnen we kijken of we verwachten dat het water warmer of kouder gaat worden.
 Als het bijvoorbeeld 35 \textdegree c is, zal het waarschijnlijk niet nodig zijn om het water te verwarmen. Als het daarentegen 15 \textdegree c is, zal het verkoelen van het water weer onnodig zijn.
@@ -215,36 +218,42 @@ Deze zal worden gebruikt in combinatie met de water temperatuur. Als bijvoorbeel
 Binnen het project ga ik gebruik maken van een aantal actuatoren, welke worden aangestuurd door de boven genoemde sensoren.
 De actuatoren zal ik hieronder verder toelichten. Ik ga de volgende actuatoren gebruiken voor mijn systeem.
 \begin{itemize}
-  \item Peltier element geschakeld met PWM dmv een relais
-  \item Verwarmingselement, geschakeld met een relais (Exo Terra Turtle Heater(50w).)
-  \item LED 
-  \item pH Dosering pomp, geschakeld met een relais.
+  \item Verkoelingselement, geschakeld met een relais (Hobby Aqua Cooler V2).
+  \item Verwarmingselement, geschakeld met een relais (Exo Terra Turtle Heater(50w)).
+  \item pH Dosering pomp, geschakeld met een relais (Adafruit Peristaltic Liquid Pump).
 \end{itemize}
 
-\subsubsection{Peltier Element}
-Het peltier element wordt gebruikt om het water te verkoelen. 
+% \subsubsection{Peltier Element}
+% Het peltier element wordt gebruikt om het water te verkoelen. 
+% Dit zal vooral nodig zijn op tropische zomerdagen, om het water koel genoeg te houden op een temperatuur van 25 \textdegree c.
+% Om het verkoelen rustig en accuraat te laten verlopen, ga ik hem schakelen met een relais, aangesloten op een PWM signaal.
+\subsubsection{Verkoelingselement}
+Het verkoelingselement wordt gebruikt om het water te verkoelen. 
 Dit zal vooral nodig zijn op tropische zomerdagen, om het water koel genoeg te houden op een temperatuur van 25 \textdegree c.
-Om het verkoelen rustig en accuraat te laten verlopen, ga ik hem schakelen met een relais, aangesloten op een PWM signaal.
+De koeler wordt aan- en uitgezet door middel van een relais, om te zorgen dat de koeler uitgezet kan worden wanneer verwarming nodig is.
+
+Ik ga gebruik maken van de Hobby Aqua Cooler V2. Deze koeler is vrij klein en simpel, maar is meer dan krachtig genoeg voor mijn aquarium.
 
 \subsubsection{Verwarmingselement}
 Op de meeste dagen zal het water te koud zijn voor de schildpad. Daarom is er een verwarmingselement nodig. 
 Dit element regelt zelf het verwarmen van een water met een vooraf ingestelde temperatuur. 
 Deze wordt ook geschakeld met een relais, zodat het water niet verwarmd blijft worden tijdens het afkoelen.
 
-Ik ga gebruik maken van de Exo Terra Turtle Heater(50w).
+Ik ga gebruik maken van de Exo Terra Turtle Heater(50w), omdat ik deze al dagelijks gebruik in mijn aquarium en deze altijd goed beschikbaar is.
 Deze houdt het water standaard al op 25 \textdegree c. 
 
 \subsubsection{pH Dosering pomp}
 Om te zorgen dat ph in een veilig en gezond bereik blijft, wordt de dosering pomp gebruikt. 
 Zodra de pH waarde in het aquarium te hoog of te laag wordt, worden er pH verhogende of verlagende chemicaliën toegevoegd aan het aquarium.
 
+Ik ga gebruik maken van de 'Adafruit Peristaltic Liquid Pump with Silicone Tubing'. Deze is van het bekende merk Adafruit en is simpel in gebruik.
 
-\subsubsection{LED}
-Als laatste hebben we een simpele LED als actuator. Deze gaat branden om aan te geven dat het water niet van voldoende kwaliteit is.
-Hiermee kan de eigenaar het water vervangen, zodra het nodig is. 
+% \subsubsection{LED}
+% Als laatste hebben we een simpele LED als actuator. Deze gaat branden om aan te geven dat het water niet van voldoende kwaliteit is.
+% Hiermee kan de eigenaar het water vervangen, zodra het nodig is. 
 
-\subsection{Diagrammen}
-
+\subsection{Fritzing Diagram}
+Het is van groot belang dat het systeem op de correcte manier wordt aangesloten. Hieronder staat een diagram, welke laat zien hoe elk component verbonden hoort te worden met de microcontroller.
 \begin{figure}[h]
   \centering
   \includegraphics[width=0.9\textwidth]{Images/hardware_sketch_fritzing.png}
@@ -255,6 +264,13 @@ Hiermee kan de eigenaar het water vervangen, zodra het nodig is.
 
 
 \section{Software}
+Het systeem wordt ontwikkeld met Visual Studio Code. Het \turtleguard systeem zal voornamelijk worden geïmplementeerd in Python. De sensoren en actuatoren worden geïmplementeerd in C++.
+
+De code zal voornamelijk worden geprogrammeerd op een object-georiënteerde en aspect-georiënteerde wijze. 
+Daarnaast wordt het controle systeem geïmplementeerd volgens het Functional Reactive Programming principe.
+De koppeling tussen Python en C++ zal worden gedaan via pybind, omdat dit een modern en relatief simpele koppeling is tussen C++ en Python.
+
+Het systeem zal de volgende klassenstructuur hebben.
 % TODO: Klassendiagram
 \begin{figure}[h]
   \centering
@@ -263,24 +279,44 @@ Hiermee kan de eigenaar het water vervangen, zodra het nodig is.
   \label{fig:classdiagram}
 \end{figure}
 
+\par \smallskip
+Er zijn verschillende flows binnen het systeem. De simpelste is de 'main' flow. Dit is simpelweg de entrypoint van het programma.
+Dit entrypoint maakt gebruik van de twee 'managers' binnen het systeem, welke beide op zich aparte delen van het systeem 'managen'.
+Dit zijn de Temperatuur-manager en de Waterkwaliteits-manager. 
+Voor het gemak is een activity diagram gemaakt voor elk van deze systemen. De managers zullen verder worden toegelicht in hoofdstuk \ref{sec:tempmgr} en \ref{sec:wqmgr}. 
+
 % Todo: activity diagram
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.3\textwidth]{Images/ActivityDiagram.png}
   \caption{\turtleguard Activity Diagram}
   \label{fig:activitydiagram}
 \end{figure}
 
+\subsection{Temperatuur-manager}
+\label{sec:tempmgr}
+De temperatuur manager is verantwoordelijk voor het meten en waarborgen van de correcte temperaturen binnen het \turtleguard systeem.
+Op basis van omgevingstemperatuur en watertemperatuur worden het verwarmingselement en het verkoelingselement aangestuurd.
+De gebruiker stelt vooraf een ideale temperatuur in. Het systeem zorgt er voor dat de temperatuur van het aquarium binnen 3\textdegree c van de ideale temperatuur blijft.
+Er is gekozen voor een waarde van 3 \textdegree c, omdat dit nog volledig comfortabel is voor de muskus schildpad. Muskus schildpad hebben een voorkeur aan temperaturen van x tot x.
+De werking van het systeem staat beschreven in het activity diagram hier onder.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.9\textwidth]{Images/ActivityDiagramTemp.png}
   \caption{\turtleguard Temperatuur Manager Activity Diagram}
   \label{fig:activitydiagramtemperature}
 \end{figure}
 
-\begin{figure}[h]
+\subsection{Waterkwaliteits-manager}
+\label{sec:wqmgr}
+De waterkwaliteit manager is verantwoordelijk voor het waarborgen van een juiste pH waarde. 
+Dat wordt gedaan door middel van twee doseringspompen, in combinatie met een pH sensor.
+Deze doseringspompen pompen (schildpad-veilige) chemicaliën in het water, welke de pH kunnen verhogen of verlagen.
+De pompen worden aangesloten op het systeem via een relais, welke de pompen aan- of uitzetten.
+De werking van dit systeem staat beschreven in het volgende activity diagram. 
+\begin{figure}[H]
   \centering
   \includegraphics[width=0.5\textwidth]{Images/ActivityDiagramQuality.png}
   \caption{\turtleguard Water Quality Activity Diagram}
@@ -363,6 +399,9 @@ In onderstaande tabel wordt beschreven hoe elk kenmerk wordt toegepast binnen he
 \end{table}
 
 
+Voor het \turtleguard systeem is functionaliteit en betrouwbaarheid het belangrijkste punt. 
+Het systeem moet goed werken en mag niet zomaar kapot gaan, omdat de gezondheid van de schildpad hiervan afhankelijk is.
+Beveiliging is daarentegen niet belangrijk. Het systeem gaat immers niet met gevoelige data aan de gang. Het regelt simpelweg het water van een schildpad.
 
 \begin{table}[h]
   \centering
@@ -414,6 +453,9 @@ Verifiëren dat de water temperatuursensor nauwkeurige en betrouwbare metingen l
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
 Het waarborgen van de nauwkeurigheid van de water temperatuursensor is cruciaal voor het welzijn van de schildpadden en de algehele betrouwbaarheid van het \turtleguard-systeem.
+Met deze test kan worden getest of de sensor op de juiste manier is geïmplementeerd en hij correcte waardes teruggeeft,
+Als er een verkeerde temperatuur wordt uitgelezen, kan het systeem de temperatuur niet goed regelen. De kans bestaat dat het water dan te ver koelt of verwarmt. 
+Beide kunnen ziektes en andere gezondheidsproblemen opwekken bij de schildpad.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
@@ -441,67 +483,128 @@ De test wordt als geslaagd beschouwd als de uitvoer van de sensor binnen 0.5 \te
 \end{tcolorbox}
 
 
-\section{Integratietests}
+\subsection{pH Sensor}
+
 \begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de Unit]
+Deze unit test richt zich op het meten van de werking en nauwkeurigheid van de pH sensor(EZO\texttrademark pH Circuit). 
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
-  Het testen van het verwarming circuit
+Het doel van deze test is het verifiëren dat de ph sensor de juiste waardes levert.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+Het waarborgen van de nauwkeurigheid van de pH-sensor is cruciaal voor het welzijn van de schildpadden en de algehele betrouwbaarheid van het \turtleguard-systeem.
+Met deze test kan worden getest of de sensor op de juiste manier is geïmplementeerd en hij correcte waardes teruggeeft,
+Als de sensor een verkeerde waarde afgeeft, kan het zijn dat het systeem het water een te hoge of te lage pH-waarde geeft, wat gezondheidsproblemen kan opleveren bij de schildpad.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
   % wanneer kan de test uitgevoerd worden?
   \begin{itemize}
-    \item
+    \item De sensor is verbonden zoals beschreven in de hardware schetsen 
+    \item De code om met de sensor te communiceren is opgezet 
   \end{itemize}
 \end{tcolorbox}
 
-
-
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
   \begin{enumerate}
-    \item
+    \item Vul een bak met water, met een vooraf bekende pH-waarde.
+    \item Dompel de sensor onder de bak met water 
+    \item Noteer de pH-waarde, uitgelezen via het \turtleguard systeem. 
+    \item Vergelijk de twee waardes. 
   \end{enumerate}
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+De test wordt als geslaagd beschouwd als de pH-waarde van de sensor binnen 0.05 pH zit van de vooraf bekende pH-waarde.
+\end{tcolorbox}
+
+
+\section{Integratietests}
+\subsection{Integratietest: pH dosering pomp}
+\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de interface]
+  Deze test richt zich op de interface tussen de pH-sensor en de doseringspompen die pH-verhogende en pH-verlagende chemicaliën toevoegen.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
+  Het doel van deze test is om te valideren dat de pH-sensor en de doseringspompen correct samenwerken om binnen de gewenste pH grenzen te blijven.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+  Een correcte pH-waarde is cruciaal voor de gezondheid van de muskus schildpadden. Het is daarom cruciaal om te zorgen dat de sensor en de pompen perfect samenwerken.
+  Als de pH-waarde te hoog of te laag is, kan dit stress en gezondheidsproblemen veroorzaken voor de schildpad.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
+  % wanneer kan de test uitgevoerd worden?
+  \begin{itemize}
+    \item De pH-sensor en doseringspompen zijn correct aangesloten.
+    \item Het systeem is geïnitialiseerd en klaar voor testen.
+    \item Er bevindt zich geen schildpad in het aquarium.
+  \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
+  \begin{enumerate}
+    \item Initialiseer het systeem met een bekende pH-waarde die te laag is.
+    \item Monitor de pH-sensor metingen.
+    \item Controleer of de doseringspomp voor het verhogen van de pH wordt geactiveerd.
+    \item Meet het nieuwe pH-niveau.
+    \item Herhaal stappen 1-4, maar met een te hoge pH-waarde om de doseringspomp voor het verlagen van de pH te activeren.
+  \end{enumerate}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+  \begin{itemize}
+    \item De doseringspomp voor het verhogen van de pH moet worden geactiveerd als het pH-niveau onder het ingestelde punt ligt.
+    \item De doseringspomp voor het verlagen van de pH moet worden geactiveerd als het pH-niveau boven het ingestelde punt ligt.
+  \end{itemize}
 \end{tcolorbox}
 
 
 \section{Systeemtests}
-\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de Unit]
-  
+\begin{tcolorbox}[colback=white, colframe=black, title=Beschrijving van de systeemtest]
+  Deze test richt zich op de juiste werking tussen de verschillende interfaces van het gehele \turtleguard systeem.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Doel]
-  Zien of de ph waarde blijft
+  Het doel van deze test is het valideren van de werking van het gehele systeem onder verschillende, reële omstandigheden.
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Motivatie]
+  Het is cruciaal om het gehele systeem te testen voordat het in gebruik wordt genomen. Het comfort, maar ook de veiligheid, van de huisdieren zijn afhankelijk van dit systeem.
+  Door middel van deze test kan worden vastgesteld dat alle interfaces op de juiste manier met elkaar samenwerken onder realistische omstandigheden. 
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Criteria]
-  % wanneer kan de test uitgevoerd worden?
   \begin{itemize}
-    \item
+    \item Alle hardware moet vooraf correct aangesloten zijn.
+    \item De sensoren dienen geplaatst te zijn. Water sensoren moeten in het water zitten.
+    \item De voorgaande tests moeten succesvol afgerond zijn. 
+    \item Er dient geen schildpad geplaatst te zijn in het aquarium gedurende de test.
+    \item De correcte pH en temperatuur grenswaardes zijn ingesteld.
   \end{itemize}
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Test Stappen]
   \begin{enumerate}
-    \item    
+    \item Controleer of alle componenten juist zijn verbonden.
+    \item Controleer of de pH en temperatuur waardes juist zijn ingesteld. 
+    \item Start het systeem.
+    \item Observeer het systeem onder verschillende (kamer) temperaturen en met verschillende pH waardes. 
+    \item Verifieer of het aquarium binnen de vooraf ingestelde waardes blijft.
   \end{enumerate}
 \end{tcolorbox}
 
 \begin{tcolorbox}[colback=white, colframe=black, title=Slagingscriteria]
+  De test wordt als geslaagd beschouwd als het systeem gedurende de hele test binnen de veilige en comfortabele grenzen is gebleven.
 \end{tcolorbox}
 
 
-\chapter{Planning}
+\chapter{Deliverables}
 
+\chapter{Planning}
 
 
 \chapter{Begrippen}

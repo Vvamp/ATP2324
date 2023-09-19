@@ -4,9 +4,6 @@ skinparam linetype ortho
 start 
 :Check water temperature;
 :Check water quality;
-' While true 
-'(parallel) check water temp 
-'(parallel) check water quality
 end
 @enduml
 
@@ -17,68 +14,48 @@ fork
     :Read Water Temperature;
 fork again 
     :Read Room Temperature;
-end merge 
+end fork 
 
 if (water warmer than room?) is (yes) then 
    if (water above target temperature?) is (yes) then 
         :Turn on cooler;
-    else 
+        :Turn off heater;
+    else (no)
         if (water more than 3 degrees below target temperature?) is (yes) then 
             :Turn on heater;
+            :Turn off cooler;
+        else (no)
+            :Turn off heater;
+            :Turn off cooler;
         endif
    endif
 else (no)
     if (water below target temperature?) is (yes) then 
         :Turn on heater;
-    else 
+        :Turn off cooler;
+    else (no)
         if (water more than 3 degrees above target temperature?) is (yes) then 
             :Turn on cooler;
+            :Turn off heater;
+        else (no)
+            :Turn off heater;
+            :Turn off cooler;
         endif
    endif
 endif
-' Temp -> check 
-' (parallel) Read Water Temperature
-' (parallel) Read Room Temperature
-' (close parallel)
-' if water temperature > room temperature
-'' if water temperature > target temperature: cooler 
-'' if water temprature < target temperature: heater!
-' if water temperature < room temperature
-'' if water temperature > target temperature: cooler!
-'' if water temperature < target temperature: heater
-
-' when a !: definitely turn on
-' when no !: only turn on when outside the +3 or -3 celsius range(be settable) 
 end
-@enduml 
+@enduml
+
 
 @startuml ActivityDiagramQuality
 start
 :Clear bad water quality notifications;
-fork 
-    :Read pH value;
-    if (pH value out of safe ranges?) is (yes) then 
-        :Turn on either pH dosing pump;
-    endif
-fork again 
-    :Read tds value;
-    if (tds > max tds value?) is (yes) then 
-        :Notify bad water quality;
-    endif
-end merge 
-
-
-
-' Quality -> check
-' (parallel) Read ph value
-' (parallel) Read tds value
-' (close parallel)
-' if ph value > max value: 
-'' turn on
-'' else turn off
-' if tds value > max value:
-'' turn on 
-'' else turn off
+:Read pH value;
+if (pH value out of safe ranges?) is (yes) then 
+    :Turn on either pH dosing pump;
+else  (no)
+    :Turn off the pH dosing pumps;
+endif
 
 end
 
