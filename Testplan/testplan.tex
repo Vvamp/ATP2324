@@ -25,8 +25,13 @@
 \usepackage{glossaries}
 \usepackage{tabularx}
 \usepackage{float}
+\usepackage{pgffor}
+\usepackage{listings}
+\usepackage{minted}
 \usepackage[printonlyused,withpage]{acronym}
 %%% Je mag zelf PWM implemetneren bij bijv peltierelement of het verwarming relais.
+\usemintedstyle{native}
+\definecolor{bg}{rgb}{0.1, 0.1, 0.1}
 
 % Styling
 \renewcommand{\rmdefault}{\sfdefault}
@@ -162,6 +167,8 @@
         \hline
         Versie & Datum      & Changes Made  \\
         \hline
+        1.2    & 2023-10-03 & Hoofdstuk \ref{sec:decorators} toegevoegd met decorators. \hyperref[sec:bijlageA]{Bijlage A} toegevoegd.\\
+        \hline
         1.1    & 2023-09-19 & Tweede Versie \\
         \hline
         1.0    & 2023-09-10 & Eerste Versie \\
@@ -290,6 +297,8 @@ De code zal voornamelijk worden geprogrammeerd op een object-georiënteerde en a
 Daarnaast wordt het controle systeem geïmplementeerd volgens het Functional Reactive Programming principe.
 De koppeling tussen Python en C++ zal worden gedaan via pybind, omdat dit een modern en relatief simpele koppeling is tussen C++ en Python.
 
+Ook zal, zoals uitgebreid besproken in hoofdstuk \ref{sec:decorators}, gebruik worden gemaakt van decorators tijdens de het testen.
+
 Het systeem zal de volgende klassenstructuur hebben.
 % TODO: Klassendiagram
 \begin{figure}[h]
@@ -342,6 +351,7 @@ De werking van dit systeem staat beschreven in het volgende activity diagram.
   \caption{\turtleguard Water Quality Activity Diagram}
   \label{fig:activitydiagramquality}
 \end{figure}
+
 
 \chapter{Testplan}
 \section{Risicoanalyse}
@@ -460,7 +470,170 @@ Daarnaast kan betrouwbaarheid hiermee goed getest worden, omdat er zichtbaar is 
 %   \item Bruikbaarheid
 %   \item Overdraagbaarheid
 % \end{enumerate}
+\section{Decorators}
+\label{sec:decorators}
+Om \turtleguard beter te kunnen testen, zal gebruik worden gemaakt van een aantal decorators in het systeem.
+Deze kunnen makkelijk toegevoegd worden tijdens de testfase, maar er in de productiefase weer uitgehaald worden.
+Met deze decorators kunnen bepaalde dingen beter getest en gecontroleerd worden, zonder de daadwerkelijke productie code aan te passen.
+\par\smallskip
+De decorators beschreven in de kopjes hieronder. 
+In \hyperref[sec:bijlageA]{bijlage A} staat de definitie van alle decorators, samen met wat testcode.
 
+
+\subsection{De logging decorator}
+Met de 'log' decorator kan gemakkelijk bijgehouden worden in welke functie de code zich bevindt op een gegeven moment, met welke parameters die functie uitgevoerd wordt en of de functie succesvol was. 
+Dit is extreem nuttig, omdat er op deze manier snel vastgesteld kan worden waar een potentieel probleem zich heeft opgedaan en met welke waardes.
+Als er dus een functie crasht bij een bepaalde set aan parameters, kan dat gereproduceerd worden met dezelfde parameters. 
+Hiermee kan gemakkelijk gecontroleerd worden of een bug is opgelost en hoe deze is ontstaan.
+\par\smallskip 
+Zonder deze decorator zou het waarschijnlijk veel meer tijd kosten om te achterhalen waar een probleem vandaan komt.
+Dit kan dan zorgen voor vertragingen in de ontwikkeling van \turtleguard.
+\par\smallskip
+De decorator is gedefinieerd in figuur \ref{fig:decorator_log}.
+\begin{figure}[H]
+\begin{minted}[bgcolor=bg,linenos, breaklines]{python}
+from functools import wraps
+# Logs which function was run and with what arguments
+def log(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        try:
+            print("Entering: [%s] with parameters %s" % (func.__name__, args))
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                print('Exception in %s : %s' % (func.__name__, e))
+        finally:
+            print("Exiting: [%s]" % func.__name__)
+    return wrapped
+\end{minted}
+\caption{Logging Decorator}
+\label{fig:decorator_log}
+\end{figure}
+
+\subsection{De sensor timing decorator}
+De 'time\_sensor\_readings' decorator geeft een functie de mogelijkheid om bij te houden hoelang er zat tussen een voorgaande functie-call.
+Deze worden opgeslagen in een lijst 'timings', welke wordt toegevoegd aan de functie met de decorator.
+Zo kan per functie worden gekeken hoeveel tijd er zat tussen voorgaande calls.
+Het nut hiervan is onder andere het controleren van hoe snel het pollen gaat. 
+Hiermee kan de performance van de polling functie gecontroleerd worden, maar ook hoe snel de sensor reageert. 
+Daarnaast kan er worden gekeken of de tijd tussen twee polls gelijk is met wat er verwacht wordt. 
+Als er namelijk verwacht wordt dat er tien seconden zit tussen twee polls, maar er zit een hele minuut tussen, dan heeft dat grote gevolgen voor het systeem.
+Zo kunnen dan ook problemen opgemerkt worden in de performance van bepaalde delen van het programma. 
+\par\smallskip
+Zonder deze decorator zouden we niet accuraat weten hoeveel tijd er zou zitten tussen metingen.
+Hiermee zouden we niet weten of metingen wel op tijd zijn uitgevoerd en met een regulier interval.
+Dat is belangrijk, omdat het systeem potentieel niet goed zal werken als er een grote variatie zit in tijd tussen metingen.
+Dit komt omdat het systeem dan niet uit kan gaan dat een verandering daadwerkelijk groot is, of dat deze simpelweg over een grote tijd span is gemeten.
+\par\smallskip
+De decorator is gedefinieerd in figuur \ref{fig:decorator_sensor_timing}.
+\begin{figure}[H]
+\begin{minted}[bgcolor=bg,linenos, breaklines]{python}
+from functools import wraps
+import time
+# Measures the time since the last sensor reading. 
+# This can be used for performance testing, but also to verify how often we poll the data
+def time_sensor_readings(func):
+    @wraps(func)
+    def wrapped(*args, **kwargs):
+        current_time = time.perf_counter()
+        if wrapped.lastvalue != None:
+            wrapped.timings.append(current_time - wrapped.lastvalue)
+        wrapped.lastvalue = current_time
+        return func(*args, **kwargs)
+    wrapped.timings = []
+    wrapped.lastvalue = None
+    return wrapped
+\end{minted}
+\caption{Sensor Timing Decorator}
+\label{fig:decorator_sensor_timing}
+\end{figure}
+
+\subsection{De waarde-afwijkings decorator}
+Via de 'notify\_sudden\_increase' decorator, kan gekeken worden of er een afwijkende waarde wordt gedetecteerd. 
+Dit wordt gedaan door te kijken naar het gemiddelde van een vooraf bepaald aantal sensor-lezingen, ten opzichte van de meest recente lezing. 
+Als de meest recente waarde namelijk ineens een stuk hoger is dan het gemiddelde van de voorgaande lezingen, kan dat duiden op een probleem met de sensor.
+Het is immers niet normaal als een pH sensor of thermometer ineens een waarde uitleest die dubbel zo hoog is als de voorgaande tien uitgelezen waardes, mits er geen lange tijd zat tussen de metingen.
+Met deze decorator kan dus gekeken worden naar de juistheid van de data die uitgelezen wordt uit een sensor, op basis van eerdere metingen.
+Ook worden via een lijst 'outliers\_with\_means' de resultaten beschikbaar gesteld.
+Deze lijst bevat een afwijkende waarde, samen met het bijhorende gemiddelde.
+\par\smallskip 
+Als we deze decorator niet zouden gebruiken, zou het kunnen zijn dat we bepaalde veranderingen in waardes over het hoofd zien tijdens de testfase.
+Hiermee garanderen we dat we gemeld worden over waardes die afwijkend lijken.
+\par\smallskip
+De decorator is gedefinieerd in figuur \ref{fig:decorator_sudden_increase}.
+\begin{figure}[H]
+\begin{minted}[bgcolor=bg,linenos, breaklines]{python}
+from functools import wraps
+import deque
+# Detects a sudden outlier based on a specified number of previous readings and a percentage(how much the reading can deviate from the mean)
+# This can help detecting sensor malfunctions, as it's not common for a sensor to give a substantial higher/lower reading than the mean(given the sensor is polled enough).
+def notify_sudden_increase(cached_readings : int = 4, change_percentage : float = 0.9):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            result = func(*args, **kwargs)
+            wrapped.cached_values.append(result)
+
+            # Check if the last value is a sudden outlier
+            if(wrapped.cached_values.maxlen == len(wrapped.cached_values)):
+                cached_mean = statistics.mean(wrapped.cached_values)
+
+                # Calculate the percentage increase based on the mean
+                current_change = abs((result - cached_mean) / cached_mean)
+                if(current_change > change_percentage):
+                    higher_text = "higher" if result > cached_mean else "lower"
+                    wrapped.outliers_with_means.append((result, cached_mean))
+                    print(f"Sudden outlier! {result} is {current_change*100}% {higher_text} than the mean('{cached_mean}') of the last {cached_readings} readings")
+            return result
+        wrapped.cached_values = deque(maxlen=cached_readings)
+        wrapped.outliers_with_means = []
+        return wrapped 
+    return decorator
+\end{minted}
+\caption{Waarde-afwijkings Decorator}
+\label{fig:decorator_sudden_increase}
+\end{figure}
+
+\subsection{De falende sensor decorator}
+Als laatste is er een 'simulate\_potential\_fail' decorator.
+Deze kan meegegeven worden aan een functie die een sensor waarde teruggeeft. 
+Op basis van de meegegeven parameters, zal deze decorator af en toe een onlogische waarde teruggeven.
+Dat doet de decorator op basis van een 'minimum' en 'maximum' waarde die een sensor zou moeten teruggeven.
+Er is een vooraf bepaalde kans dat de sensor 'faalt' via deze decorator.
+In dat geval geeft de decorator een waarde terug die buiten de minimum en maximum ligt.
+Deze waarde zal een random waarde zijn, uit een vooraf bepaalde lijst aan mogelijke waardes. 
+Zo is een mogelijkheid dat de falende sensor een waarde geeft die 1 punt onder of boven de limieten ligt.
+Ook kan de teruggeven waarde een percentage hoger of lager zijn.
+Hiermee kan worden getest hoe het systeem reageert op een sensor die onlogische waardes teruggeeft.
+Dat kan namelijk gebeuren als een sensor kapot gaat of niet juist is aangesloten. 
+\par\smallskip
+Zonder deze decorator kunnen we niet garanderen dat zulke edge-cases worden gecontroleerd tijdens de testfase.
+Hiermee garanderen we dat het systeem om kan gaan met rare waardes.
+\par\smallskip
+De decorator is gedefinieerd in figuur \ref{fig:decorator_simulate_fail}.
+\begin{figure}[H]
+\begin{minted}[bgcolor=bg,linenos, breaklines]{python}
+from functools import wraps
+import random
+# Has a specified chance of sending an out-of-bounds value.
+# This simulates a failing sensor
+def simulate_potential_fail(lower_limit, upper_limit, failing_chance : float = 0.5):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            if random.random() < failing_chance:
+                print(f"Simulating failing sensor. Lower limit: {lower_limit}. Upper limit: {upper_limit}")
+                return random.choice([lower_limit-1, upper_limit+1, lower_limit-lower_limit*0.8, upper_limit+lower_limit*0.8]) # Return a random failing number
+            return func(*args, **kwargs)
+        return wrapped
+    return decorator
+\end{minted}
+\caption{Falende Sensor Decorator}
+\label{fig:decorator_simulate_fail}
+\end{figure}
+
+\pagebreak
 \section{Unit Tests}
 
 \subsection{Water thermometer}
@@ -639,6 +812,7 @@ Daarnaast zal voor het testen het systeem opgeleverd worden.
 Tijdens de testfase zullen testresultaten genoteerd worden, om later opgenomen te kunnen worden in het testrapport. 
 \begin{itemize}
   \item Testresultaten
+  \item De resultaten die de decorators opleveren gedurende de tests
 \end{itemize}
 \section{Na de testfase}
 Na de testfase zullen de resultaten gepubliceerd worden in een testrapport. 
@@ -683,6 +857,29 @@ Na de testfase zullen de resultaten gepubliceerd worden in een testrapport.
 \bibliography{bronnen}
 \endgroup
 
-% \chapter{Bijlagen}
+\chapter{Bijlagen}
+\section{Bijlage A - Python Decorator Testdocument}
+\label{sec:bijlageA}
+\begin{figure}[H]
+    % \lstinputlisting[language=python,linerange={1-46}]{Appendices/decorator_testdocument.py}
+    \inputminted[firstline=1, lastline=46,bgcolor=bg,linenos, breaklines]{Python}{Appendices/decorator_testdocument.py}
+    \caption{Volledige testdocument van de decorators (Deel 1/2)}
+  \label{fig:decorator_document}
+\end{figure}
+\begin{figure}[H]
+    \inputminted[firstline=47, lastline=100,bgcolor=bg,linenos, breaklines]{Python}{Appendices/decorator_testdocument.py}
 
+    \caption{Volledige testdocument van de decorators (Deel 2/2)}
+  \label{fig:decorator_document2}
+\end{figure}
+
+% \lstinputlisting[language=python]{Appendices/decorator_testdocument.py}
+
+% \foreach \sourcecodename in {Appendices/decorator_testdocument} {
+%    \begin{figure}[htpb]
+%         \lstinputlisting[language=python]{Appendices/decorator_testdocument.py}
+%         \caption{Source code van \textsf{\sourcecodename.py}}
+%      \label{fig:\sourcecodename}
+%    \end{figure}
+% }
 \end{document}
