@@ -1,0 +1,34 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} https://stackoverflow.com/a/18506625 }
+\PYG{c+c1}{\PYGZsh{} Python doesn\PYGZsq{}t have recursive tail optimization. Using a Y\PYGZhy{}combinator allows for an infinite looping function without using loops}
+\PYG{k}{def} \PYG{n+nf}{bet}\PYG{p}{(}\PYG{n}{func}\PYG{p}{):}
+    \PYG{n}{b} \PYG{o}{=} \PYG{p}{(}\PYG{k}{lambda} \PYG{n}{f}\PYG{p}{:} \PYG{p}{(}\PYG{k}{lambda} \PYG{n}{x}\PYG{p}{:} \PYG{n}{x}\PYG{p}{(}\PYG{n}{x}\PYG{p}{))(}\PYG{k}{lambda} \PYG{n}{y}\PYG{p}{:}
+          \PYG{n}{f}\PYG{p}{(}\PYG{k}{lambda} \PYG{o}{*}\PYG{n}{args}\PYG{p}{:} \PYG{k}{lambda}\PYG{p}{:} \PYG{n}{y}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)(}\PYG{o}{*}\PYG{n}{args}\PYG{p}{))))(}\PYG{n}{func}\PYG{p}{)}
+    \PYG{k}{def} \PYG{n+nf}{wrapper}\PYG{p}{(}\PYG{o}{*}\PYG{n}{args}\PYG{p}{):}
+        \PYG{n}{out} \PYG{o}{=} \PYG{n}{b}\PYG{p}{(}\PYG{o}{*}\PYG{n}{args}\PYG{p}{)}
+        \PYG{k}{while} \PYG{n+nb}{callable}\PYG{p}{(}\PYG{n}{out}\PYG{p}{):}
+            \PYG{n}{out} \PYG{o}{=} \PYG{n}{out}\PYG{p}{()}
+        \PYG{k}{return} \PYG{n}{out}
+    \PYG{k}{return} \PYG{n}{wrapper}
+
+
+\PYG{k}{def} \PYG{n+nf}{main\PYGZus{}loop}\PYG{p}{(}\PYG{n}{f}\PYG{p}{,} \PYG{n}{ph\PYGZus{}sensor}\PYG{p}{,} \PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{):}    
+    \PYG{c+c1}{\PYGZsh{} Get values}
+    \PYG{n}{water\PYGZus{}temperature}\PYG{p}{,} \PYG{n}{room\PYGZus{}temperature}\PYG{p}{,} \PYG{n}{ph\PYGZus{}value} \PYG{o}{=} \PYG{n+nb}{map}\PYG{p}{(}\PYG{n}{read\PYGZus{}value}\PYG{p}{,} \PYG{p}{[}\PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{ph\PYGZus{}sensor}\PYG{p}{])}
+
+    \PYG{n}{toggle\PYGZus{}actuator} \PYG{p}{:} \PYG{n}{typing}\PYG{o}{.}\PYG{n}{Callable}\PYG{p}{[[}\PYG{n}{IActuator}\PYG{p}{,}\PYG{n+nb}{bool}\PYG{p}{],} \PYG{k+kc}{None}\PYG{p}{]} \PYG{o}{=} \PYG{k}{lambda} \PYG{n}{actuator}\PYG{p}{,} \PYG{n}{actuator\PYGZus{}state} \PYG{p}{:} \PYG{n}{actuator}\PYG{o}{.}\PYG{n}{turnOn}\PYG{p}{()} \PYG{k}{if} \PYG{n}{actuator\PYGZus{}state} \PYG{k}{else} \PYG{n}{actuator}\PYG{o}{.}\PYG{n}{turnOff}\PYG{p}{()}
+    
+    \PYG{c+c1}{\PYGZsh{} Check what states the actuators need to be set to }
+    \PYG{n}{temperature\PYGZus{}states} \PYG{o}{=} \PYG{n}{temperature}\PYG{o}{.}\PYG{n}{controlWaterTemperature}\PYG{p}{(}\PYG{n}{water\PYGZus{}temperature}\PYG{p}{,} \PYG{n}{room\PYGZus{}temperature}\PYG{p}{,} \PYG{l+m+mi}{30}\PYG{p}{,}  \PYG{l+m+mi}{3}\PYG{p}{)}
+    \PYG{n}{ph\PYGZus{}states} \PYG{o}{=} \PYG{n}{quality}\PYG{o}{.}\PYG{n}{controlWaterQuality}\PYG{p}{(}\PYG{n}{ph\PYGZus{}value}\PYG{p}{,} \PYG{l+m+mf}{6.5}\PYG{p}{,} \PYG{l+m+mf}{7.5}\PYG{p}{)}
+        
+    \PYG{c+c1}{\PYGZsh{} Apply the actuator states using map}
+    \PYG{n}{actuators} \PYG{o}{=} \PYG{p}{[}\PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{]}
+    \PYG{n}{states} \PYG{o}{=} \PYG{p}{[}\PYG{n}{temperature\PYGZus{}states}\PYG{o}{.}\PYG{n}{heater\PYGZus{}status}\PYG{p}{,} \PYG{n}{temperature\PYGZus{}states}\PYG{o}{.}\PYG{n}{cooler\PYGZus{}status}\PYG{p}{,} \PYG{n}{ph\PYGZus{}states}\PYG{o}{.}\PYG{n}{ph\PYGZus{}add\PYGZus{}pump\PYGZus{}status}\PYG{p}{,} \PYG{n}{ph\PYGZus{}states}\PYG{o}{.}\PYG{n}{ph\PYGZus{}remove\PYGZus{}pump\PYGZus{}status}\PYG{p}{]}
+    \PYG{n+nb}{list}\PYG{p}{(}\PYG{n+nb}{map}\PYG{p}{(}\PYG{n}{toggle\PYGZus{}actuator}\PYG{p}{,} \PYG{n}{actuators}\PYG{p}{,} \PYG{n}{states}\PYG{p}{))}
+
+    \PYG{n}{time}\PYG{o}{.}\PYG{n}{sleep}\PYG{p}{(}\PYG{l+m+mi}{4}\PYG{p}{)}
+    \PYG{k}{return} \PYG{k}{lambda}\PYG{p}{:} \PYG{n}{f}\PYG{p}{(}\PYG{n}{ph\PYGZus{}sensor}\PYG{p}{,} \PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{)} 
+
+\PYG{n}{main} \PYG{o}{=} \PYG{n}{bet}\PYG{p}{(}\PYG{k}{lambda} \PYG{n}{f}\PYG{p}{:} \PYG{k}{lambda} \PYG{n}{ph\PYGZus{}sensor}\PYG{p}{,} \PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{:} \PYG{n}{main\PYGZus{}loop}\PYG{p}{(}\PYG{n}{f}\PYG{p}{,} \PYG{n}{ph\PYGZus{}sensor}\PYG{p}{,} \PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{))(}\PYG{n}{ph\PYGZus{}sensor}\PYG{p}{,} \PYG{n}{water\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{room\PYGZus{}thermometer}\PYG{p}{,} \PYG{n}{heater}\PYG{p}{,} \PYG{n}{cooler}\PYG{p}{,} \PYG{n}{increase\PYGZus{}ph\PYGZus{}pump}\PYG{p}{,} \PYG{n}{decrease\PYGZus{}ph\PYGZus{}pump}\PYG{p}{)}
+\end{Verbatim}

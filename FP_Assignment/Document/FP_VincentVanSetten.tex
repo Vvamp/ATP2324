@@ -1,0 +1,291 @@
+%!TEX TS-program = xelatex
+%!TEX encoding = UTF-8 Unicode
+\documentclass[a4paper]{report}
+%\usepackage[date=short,backend=biber]{apa}
+\usepackage[hidelinks]{hyperref}
+\usepackage{apacite}
+\usepackage[dutch]{babel}
+\usepackage[a4paper, left=1in, right=1in, top=1in, bottom=.8in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{nameref}
+\usepackage{helvet}
+\usepackage{titlesec}
+\usepackage{geometry}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{etoolbox}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage[table]{xcolor}
+\usepackage{nameref}
+\usepackage{tcolorbox}
+\usepackage{textcomp}
+\usepackage{colortbl}
+\usepackage{glossaries}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{pgffor}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage[printonlyused,withpage]{acronym}
+
+\usemintedstyle{native}
+\definecolor{bg}{rgb}{0.1, 0.1, 0.1}
+
+% Styling
+\renewcommand{\rmdefault}{\sfdefault}
+\pagestyle{fancy}
+\patchcmd{\chapter}{\thispagestyle{plain}}{\thispagestyle{fancy}}{}{}
+
+\fancyhf{}
+\fancyhead[L]{ \turtleguard }
+\fancyhead[R]{ Opdracht 3 (ATP) }
+\fancyfoot[R]{\thepage}
+
+\titleformat{\chapter}[hang]
+{\normalfont\huge\bfseries}{\thechapter.}{10pt}{\huge}
+\titlespacing{\chapter}{0pt}{-30pt}{20pt}
+
+\setlength{\parindent}{0.2em}
+
+\textwidth=400pt
+\geometry{
+    left=25mm
+}
+
+\renewcommand{\contentsname}{Inhoudsopgave}
+%\RaggedRight % Don't 'block-justify' text
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+
+% Commands
+\newcommand{\teambox}{
+  \begin{tcolorbox}[hbox, colback=blue!5!white,colframe=blue!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Team Keuze
+  \end{tcolorbox}
+}
+
+\newcommand{\personalbox}{
+  \begin{tcolorbox}[hbox, colback=green!5!white,colframe=green!75!black,
+    left=.1mm, right=.1mm, top=.1mm, bottom=.1mm, fontupper=\scriptsize\sffamily]
+    Persoonlijke Keuze
+  \end{tcolorbox}
+}
+\newcommand{\teamchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\teambox}}
+}
+
+\newcommand{\personalchoice}[1]{
+  \section[ #1 ]{#1~\mbox{\personalbox}}
+}
+\newcommand{\turtleguard}{\mbox{TurtleGuard\texttrademark}\xspace}
+
+
+% Document
+\begin{document}
+
+
+% Title Page
+\begin{titlepage}
+    \begin{center}
+        \vspace*{.9cm}
+        \Huge
+        \textbf{ Functional Programming in \turtleguard }\\
+        \vspace{0.2cm}
+        \small\textit{"Hét ultieme schild-bad voor jouw schildpad"}
+
+        \normalsize
+
+
+        
+        \includegraphics[width=0.7\textwidth]{Images/turtleguard.png}
+        \vspace{1cm}
+        \Large\\
+        \textbf{Mede mogelijk gemaakt door} \\
+        \includegraphics[width=0.2\textwidth]{Images/logouni.png}
+
+
+        \vfill
+      \end{center}
+        \textbf{Student:} Vincent van Setten - 1734729 \\
+        \textbf{Opdrachtgever:} HU University of Applied Sciences\\
+        \textbf{Datum:} \today \\
+        \vspace{2cm}
+\end{titlepage}
+
+
+% ToC
+\tableofcontents
+
+
+\clearpage  % End of the page
+
+\chapter{Inleiding}
+Binnen het vak ATP op de Hogeschool Utrecht, onderdeel van het bredere Innovation project, zal ik uiteindelijk een regelsysteem moeten simuleren.
+Het regelsysteem zal geprogrammeerd worden in Python, volgens het Functionele paradigma, en zal in dit document verder aangeduid worden als \turtleguard.
+Dit document dient als verantwoording en beschrijving van de verschillende gebruikte Functionele concepten. 
+
+\chapter{Functionele Concepten}
+Ik ga in mijn regelsysteem een aantal functionele concepten gebruiken. Deze zal ik hieronder toelichten.
+In hoofdstuk \ref{sec:example-code} zal ik implementaties in code laten zien en deze uitleggen.
+\section{Gebruikte Concepten}
+\subsection{Anonieme Functies}
+In het regelsysteem gebruik ik een aantal keer anonieme functies.
+Ten eerste gebruik ik een anonieme functie om in het regelsysteem de 'turnOn' en 'turnOff' functies te gebruiken van mijn actuators, op basis van wat de controle functies teruggeven.
+Hiermee kan ik 'dubbele code' gemakkelijk combineren, zonder daar een hele functie voor aan te maken. Zo houd ik mezelf aan het DRY principe, wat onderhoud vergemakkelijkt en de kans op fouten verkleint.
+\\
+Daarnaast gebruik ik ook anonieme functies, in combinatie met een zogeheten "Y-combinator", om mijn main loop in het regelsysteem toch zoveel mogelijk Functioneel te houden.
+Dit licht ik verder toe in \ref{sec:recursion}. 
+
+\subsection{Pure Functies}
+In mijn regelsysteem heb ik twee functies die verantwoordelijk zijn voor het maken van de keuze of een actuator aan- of uitgezet moet worden op basis van sensor waardes.
+Deze controle functies heb ik 'puur' geïmplementeerd, om zeker te zijn dat dit resultaat niet afhankelijk is van state. 
+Dit zorgt er namelijk voor dat ik deze functies afzonderlijk kan testen(door simpelweg zelf waarden mee te geven in mijn tests), maar ook dat, gegeven een waarde, altijd hetzelfde resultaat wordt teruggegeven.
+Hiermee blijven de functies dus volledig voorspelbaar, zonder kans op bijwerkingen. Dit maakt debuggen makkelijker en helpt een hoop bij het testen van het system.
+Bij het niet gebruiken van pure functies, bestaat de kans dat ik tijdens het testen andere waarden krijg vergeleken met echte wereld data doordat ik het systeem niet volledig kan testen. 
+Hierdoor kan het zijn dat het systeem anders werkt dan verwacht en dus niet de actuators activeren die ik verwacht te activeren, wat kort gezegd kan leiden tot schildpaddensoep.
+\\
+Ook heb ik een generieke 'read\_value' functie gemaakt, welke gegeven een abstracte sensor een waarde teruggeeft.
+Dit is alleen niet helemaal een pure functie, omdat deze dus een sensor waarde teruggeeft vanuit de echte wereld(wat dus state is).
+Toch wilde ik deze hier even benoemen, omdat gegeven een 'dummy' sensor met een vaste waarde, dit wel een pure functie is.
+
+\subsection{Hogere Orde Functies}
+Ik gebruik slechts een hogere orde functie, namelijk Map.
+Deze functie gebruik ik op twee plekken in mijn regelsysteem.
+Als eerste gebruik ik het om de waarde uit te lezen voor elke sensor die ik ga gebruiken.
+Zo kan ik in een enkele regel alle sensors uitlezen en ook gemakkelijk meerdere sensors toevoegen, zonder dat de code veel langer wordt.
+Ook wordt dezelfde generieke functie hiermee gebruikt, zodat deze functie makkelijk aangepast kan worden. Zo kan er een logging of timing decorator aan toegevoegd worden, zonder dat het op meerdere plekken hoeft te gebeuren.
+Daarnaast maakt dit, in mijn mening, de code wat makkelijker leesbaar.
+Door map niet te gebruiken, word de code moeilijker leesbaar, langer, onoverzichtelijker en kan het zijn dat ik dezelfde aanpassing moet toepassen op verschillende plekken. 
+Dit kan er voor zorgen dat dingen niet overal worden geimplementeerd of onvolledig worden geimplementeerd. Ook kan het zorgen dat het implementeren langer duurt.
+\\
+Ten tweede gebruik ik gebruik van map om, gegeven twee lijsten met de actuators en de gewenste 'states', elke actuator aan- of uit te zetten.
+De functie die hierop wordt uitgevoerd, genaamd 'toggle\_actuator', is zelf een anonieme functie. 
+Net als bij het lezen van de sensoren, zorgt dit ervoor dat er zo min mogelijk dubbele code staat. Deze dubbele code maakt het regelsysteem naar mijn mening moeilijker leesbaar, wat later de kans op bugs kan vergroten.
+Ook hier kan dus gemakkelijk de functie die wordt uitgevoerd aangepast worden als dat nodig is.
+De nadelen van het niet toepassen van deze map functie zijn hetzelfde als bij de andere implementatie van de map functie.
+\subsection{Recursie}
+\label{sec:recursion}
+Recursie gebruik ik niet direct. Wel maak ik gebruik van een paar lijsten, maar deze zijn statisch. Ook access ik deze lijsten alleen met map en dus niet handmatig.
+Wel gebruik ik een vorm van recursie voor mijn main loop. 
+In de les is meerdere keren aangekaart dat voor de main loop wel een while loop gebruikt mag worden, maar ik heb er toch voor gekozen om het anders aan te pakken.
+\\ 
+In eerste instantie wilde ik een simpele recursie gebruiken in de main loop(aan het eind simpelweg zichzelf laten aanroepen, om zo een loop te krijgen). 
+Helaas heeft Python geen "Tail Call Optimization". Met tail call optimization kan een functie call aan het einde van een functie 'ge-delayed' worden tot na het eindigen van een functie, om zo de oude functie call van de stack te kunnen halen\cite{enwiki:1178996948}.
+Omdat Python dit niet heeft, wordt elke nieuwe call naar Main een nieuw item op de stack, wat uiteindelijk kan zorgen voor een stack overflow. Python vangt dit af door zelf een recursie limiet te zetten. 
+Oftewel, vroeg of laat zal het programma crashen als ik deze simpele vorm van recursie toepas in de main loop. 
+\\
+De oplossing: Een aangepaste versie van een Y-combinator\cite{enwiki:1179789531}.
+Met een normale Y-combinator kun je een recursieve functie definiëren als een anonieme functie.
+Met het gebruik van een 'bet' functie, kan ik de loop aanroepen, maar de recursieve functie call verlaat aanroepen\cite{baruchel2013tailrecursion}.
+Hiermee kan de functie toch ge-delayed worden, waardoor de stack niet vergroot.
+\\
+Door deze vorm van recursie te gebruiken, heb ik geen last van iterators die state introduceren in mijn regelsysteem. 
+Als ik hier een loop zou gebruiken, zou het kunnen dat ik per ongeluk state introduceer. Dit kan weer zorgen voor onverwachte resultaten tijdens het testen.
+
+\subsection{Type Theory \& ADT's}
+In mijn code gebruik ik Python 'type annotations' om te zorgen dat het duidelijk is welke datatypes worden teruggegeven en welke meegegeven moeten worden.
+Dit vangt namelijk een groot deel van errors af, wat het aantal bugs kan verminderen. De code is namelijk leesbaarder voor mijzelf in de toekomst, of andere ontwikkelaars, wat de ontwikkeling kan versnellen de kans op fouten door type mismatching verkleint.
+Ook gebruik ik een Algebraic Data Type(ADT). Namelijk, als return waarde voor mijn controle functies gebruik ik een named tuple.
+Net als een reguliere tuple, is dit een product type\cite{enwiki:1171248602}. Hiermee kan ik gemakkelijk een enkele waarde teruggeven en, omdat dit een named tuple is, is de betekenis van elke waarde gelijk duidelijk.
+Ook dit helpt met het afhangen van verkeerde types en maakt de code leesbaar, wat weer de kans op bugs verkleint en de snelheid van ontwikkeling kan verhogen.
+\\
+Als ik deze functionele concepten niet zou toepassen, zou het kunnen dat ik volledig dingen mis bij de eindopdracht. Het zou kunnen dat ik verkeerde waardes verwacht of doorgeef, wat kan zorgen dat waarden worden afgeknipt(als ik een int meegeef in plaats van een float), of dat het systeem zelfs volledig crasht.
+Dit kan ernstige gevolgen hebben voor de schildpad. Ook maakt het alles minder leesbaar, wat de implementatie weer zou verlangzamen.
+\pagebreak
+\section{Voorbeeld Code}
+\label{sec:example-code}
+\subsection{Main Loop (Y-Combinator)}
+Voor de main loop gebruik ik een aangepaste Y-combinator, in combinatie me een bet functie, om een recursieve main loop te krijgen.
+Dit is te zien in figuur \ref{fig:ml_dec}.
+\begin{figure}[H]
+  \inputminted[firstline=1,bgcolor=bg,linenos, breaklines]{Python}{Appendices/example_ml.py}
+  \caption{Main loop declaration in python}
+  \label{fig:ml_dec}
+\end{figure}
+\pagebreak
+\subsection{Main Loop Body (Map en anonieme functies)}
+Binnen de body van mijn main loop gebruik ik map en een aantal anonieme functies. 
+In figuur \ref{fig:ml_body} staat de code van mijn main loop.
+\begin{figure}[H]
+  \inputminted[firstline=29, lastline=44,bgcolor=bg,linenos, breaklines]{Python}{../Code/main.py}
+  \caption{Main loop body in python}
+  \label{fig:ml_body}
+\end{figure}
+\pagebreak
+\subsection{Pure Functies}
+Mijn controle functies zijn pure functies. Deze functies zijn verantwoordelijk voor het bepalen welke actuators aan of uit moeten, op basis van sensorwaarden.
+De code staat in figuur \ref{fig:temp_control} en \ref{fig:quality_control}.
+\begin{figure}[H]
+  \inputminted[firstline=17, lastline=35,bgcolor=bg,linenos, breaklines]{Python}{../Code/temperature.py}
+  \caption{Temperature control function body}
+  \label{fig:temp_control}
+\end{figure}
+
+\begin{figure}[H]
+  \inputminted[firstline=14, lastline=21,bgcolor=bg,linenos, breaklines]{Python}{../Code/quality.py}
+  \caption{Quality control function body}
+  \label{fig:quality_control}
+\end{figure}
+
+\chapter{Bibliografie}
+\nocite{*} % This includes all entries from the .bib file, even if they're not cited in the document
+\begingroup
+\renewcommand{\chapter}[2]{} % Removes the 'Chapter' heading
+\renewcommand{\addcontentsline}[3]{} % Prevents adding this specific entry to TOC
+\bibliographystyle{apacite}
+\bibliography{bronnen}
+\endgroup
+
+\chapter{Bijlagen}
+\section{Bijlage A - Python Regelsysteem Code}
+\label{sec:bijlageA}
+\begin{figure}[H]
+  \inputminted[firstline=1,bgcolor=bg,linenos, breaklines]{Python}{../Code/interfaces.py}
+  \caption{interfaces.py}
+\end{figure}
+
+\begin{figure}[H]
+  \inputminted[firstline=1,bgcolor=bg,linenos, breaklines]{Python}{../Code/quality.py}
+  \caption{quality.py}
+\end{figure}
+\begin{figure}[H]
+  \inputminted[firstline=1,bgcolor=bg,linenos, breaklines]{Python}{../Code/temperature.py}
+  \caption{temperature.py}
+\end{figure}
+
+\begin{figure}[H]
+    \inputminted[firstline=2,bgcolor=bg,linenos, breaklines]{Python}{../Code/main.py}
+    \caption{main.py}
+\end{figure}
+
+
+\end{document}

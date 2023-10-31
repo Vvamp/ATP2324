@@ -1,0 +1,37 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{import} \PYG{n+nn}{random}
+\PYG{k+kn}{from} \PYG{n+nn}{collections} \PYG{k+kn}{import} \PYG{n}{namedtuple}
+\PYG{k+kn}{from} \PYG{n+nn}{interfaces} \PYG{k+kn}{import} \PYG{n}{IActuator}\PYG{p}{,} \PYG{n}{ISensor}
+
+
+\PYG{k}{class} \PYG{n+nc}{IHeater}\PYG{p}{(}\PYG{n}{IActuator}\PYG{p}{):}
+    \PYG{k}{pass}
+
+\PYG{k}{class} \PYG{n+nc}{ICooler}\PYG{p}{(}\PYG{n}{IActuator}\PYG{p}{):}
+    \PYG{k}{pass}
+
+\PYG{k}{class} \PYG{n+nc}{IThermometer}\PYG{p}{(}\PYG{n}{ISensor}\PYG{p}{):}
+    \PYG{k}{def} \PYG{n+nf}{read}\PYG{p}{(}\PYG{n+nb+bp}{self}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n+nb}{float}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n+nb}{round}\PYG{p}{(}\PYG{n}{random}\PYG{o}{.}\PYG{n}{uniform}\PYG{p}{(}\PYG{l+m+mf}{15.0}\PYG{p}{,} \PYG{l+m+mf}{35.9}\PYG{p}{),} \PYG{l+m+mi}{1}\PYG{p}{)}
+        
+
+\PYG{n}{TemperatureResult} \PYG{o}{=} \PYG{n}{namedtuple}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}TemperatureResult\PYGZsq{}}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}heater\PYGZus{}status\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}cooler\PYGZus{}status\PYGZsq{}}\PYG{p}{])}
+\PYG{k}{def} \PYG{n+nf}{controlWaterTemperature}\PYG{p}{(}\PYG{n}{water\PYGZus{}temperature} \PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{,} \PYG{n}{room\PYGZus{}temperature} \PYG{p}{:} \PYG{n+nb}{float}\PYG{p}{,} \PYG{n}{target\PYGZus{}temperature}\PYG{p}{:} \PYG{n+nb}{int}\PYG{p}{,} \PYG{n}{target\PYGZus{}temperature\PYGZus{}deadzone} \PYG{p}{:} \PYG{n+nb}{int} \PYG{o}{=} \PYG{l+m+mi}{3}\PYG{p}{)} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{n}{TemperatureResult}\PYG{p}{:}
+    \PYG{n}{max\PYGZus{}temperature} \PYG{o}{=} \PYG{n}{target\PYGZus{}temperature} \PYG{o}{+} \PYG{n}{target\PYGZus{}temperature\PYGZus{}deadzone}
+    \PYG{n}{min\PYGZus{}temperature} \PYG{o}{=} \PYG{n}{target\PYGZus{}temperature} \PYG{o}{\PYGZhy{}} \PYG{n}{target\PYGZus{}temperature\PYGZus{}deadzone}
+
+    \PYG{c+c1}{\PYGZsh{} Turn on cooler or heater if outside safe ranges}
+    \PYG{k}{if} \PYG{n}{water\PYGZus{}temperature} \PYG{o}{\PYGZgt{}} \PYG{n}{max\PYGZus{}temperature}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{TemperatureResult}\PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+    \PYG{k}{elif} \PYG{n}{water\PYGZus{}temperature} \PYG{o}{\PYGZlt{}} \PYG{n}{min\PYGZus{}temperature}\PYG{p}{:}
+        \PYG{k}{return} \PYG{n}{TemperatureResult}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{)}
+    
+    \PYG{c+c1}{\PYGZsh{} Turn on the heater/cooler if we expect the temperature to drop too much/raise too much based on room temperature. Otherwise, no cooling or heating necessary}
+    \PYG{k}{else}\PYG{p}{:}  
+        \PYG{k}{if} \PYG{n}{water\PYGZus{}temperature} \PYG{o}{\PYGZlt{}} \PYG{n}{target\PYGZus{}temperature} \PYG{o+ow}{and} \PYG{n}{room\PYGZus{}temperature} \PYG{o}{\PYGZlt{}} \PYG{n}{min\PYGZus{}temperature}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{TemperatureResult}\PYG{p}{(}\PYG{k+kc}{True}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{)}
+        \PYG{k}{elif} \PYG{n}{water\PYGZus{}temperature} \PYG{o}{\PYGZgt{}} \PYG{n}{target\PYGZus{}temperature} \PYG{o+ow}{and} \PYG{n}{room\PYGZus{}temperature} \PYG{o}{\PYGZgt{}} \PYG{n}{max\PYGZus{}temperature}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{TemperatureResult}\PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{True}\PYG{p}{)}
+        \PYG{k}{else}\PYG{p}{:}
+            \PYG{k}{return} \PYG{n}{TemperatureResult}\PYG{p}{(}\PYG{k+kc}{False}\PYG{p}{,} \PYG{k+kc}{False}\PYG{p}{)}
+\end{Verbatim}
