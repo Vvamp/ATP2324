@@ -30,3 +30,6 @@ clean:
 
 run: all
 	python main.py
+
+test: all
+	python -m unittest test.py

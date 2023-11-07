@@ -1,9 +1,5 @@
 import typing, time
 import temperature, quality
-from plant import * 
-
-# Global Settings
-enableSimualator = True
 
 # Pybind imports
 from Actuators.Relay import IRelay, Relay
@@ -37,14 +33,8 @@ cooler = Relay(2)
 increase_ph_pump = Relay(3)
 decrease_ph_pump = Relay(4)
 
-if enableSimualator:
-    simulator = Simulator()
-
 
 def read_value(sensor: ISensor) -> float:
-    if enableSimualator:
-        val = sensor.readSimulated(simulator.plant)
-        return val
     return sensor.read()
 
 
@@ -85,9 +75,6 @@ def main_loop(
     ]
     list(map(toggle_actuator, actuators, states))
 
-    if enableSimualator:
-        simulator.runIteration(heater, cooler, increase_ph_pump, decrease_ph_pump)
-
     return lambda: f(
         ph_sensor,
         water_thermometer,
@@ -98,10 +85,19 @@ def main_loop(
         decrease_ph_pump,
     )
 
-
-main = bet(
-    lambda f: lambda ph_sensor, water_thermometer, room_thermometer, heater, cooler, increase_ph_pump, decrease_ph_pump: main_loop(
-        f,
+if __name__ == "__main__":
+    main = bet(
+        lambda f: lambda ph_sensor, water_thermometer, room_thermometer, heater, cooler, increase_ph_pump, decrease_ph_pump: main_loop(
+            f,
+            ph_sensor,
+            water_thermometer,
+            room_thermometer,
+            heater,
+            cooler,
+            increase_ph_pump,
+            decrease_ph_pump,
+        )
+    )(
         ph_sensor,
         water_thermometer,
         room_thermometer,
@@ -110,12 +106,5 @@ main = bet(
         increase_ph_pump,
         decrease_ph_pump,
     )
-)(
-    ph_sensor,
-    water_thermometer,
-    room_thermometer,
-    heater,
-    cooler,
-    increase_ph_pump,
-    decrease_ph_pump,
-)
+
+
