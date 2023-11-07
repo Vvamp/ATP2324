@@ -85,7 +85,7 @@ class TestSystem(unittest.TestCase):
         # Overwrite read value to use a simulated value
         main.read_value = read_value_simulated
 
-        for i in range(0, 1000):
+        for i in range(0, 10000):
             main.main_loop(None, ph_sensor,
             water_thermometer,
             room_thermometer,
