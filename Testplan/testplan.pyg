@@ -1,0 +1,14 @@
+from functools import wraps
+import random
+# Has a specified chance of sending an out-of-bounds value.
+# This simulates a failing sensor
+def simulate_potential_fail(lower_limit, upper_limit, failing_chance : float = 0.5):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            if random.random() < failing_chance:
+                print(f"Simulating failing sensor. Lower limit: {lower_limit}. Upper limit: {upper_limit}")
+                return random.choice([lower_limit-1, upper_limit+1, lower_limit-lower_limit*0.8, upper_limit+lower_limit*0.8]) # Return a random failing number
+            return func(*args, **kwargs)
+        return wrapped
+    return decorator
