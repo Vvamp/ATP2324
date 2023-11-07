@@ -1,17 +1,5 @@
 import random
 from collections import namedtuple
-from interfaces import ISensor, IActuator
-
-
-class IHeater(IActuator):
-    pass
-
-class ICooler(IActuator):
-    pass
-
-class IThermometer(ISensor):
-    def read(self) -> float:
-        return round(random.uniform(15.0, 35.9), 1)
         
 
 TemperatureResult = namedtuple('TemperatureResult', ['heater_status', 'cooler_status'])

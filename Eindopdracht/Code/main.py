@@ -1,18 +1,15 @@
 import typing, time
 import temperature, quality
-from interfaces import ISensor, IActuator
+from plant import * 
 
-from Actuators.relay import Relay
+# Global Settings
+enableSimualator = True
 
-a = Relay(2)
-print(a)
-print("State:", a.getState())
-a.turnOn()
-print("State:", a.getState())
-a.turnOff()
-print("State:", a.getState())
-
-exit(0)
+# Pybind imports
+from Actuators.Relay import IRelay, Relay
+from Sensors.DS18B20 import ISensor, DS18B20
+from Sensors.MCP9808 import MCP9808
+from Sensors.EzoPhCircuit import EzoPhCircuit
 
 
 # https://stackoverflow.com/a/18506625
@@ -31,16 +28,23 @@ def bet(func):
     return wrapper
 
 
-ph_sensor = quality.IPHSensor()
-water_thermometer = temperature.IThermometer()
-room_thermometer = temperature.IThermometer()
-heater = temperature.IHeater()
-cooler = temperature.ICooler()
-increase_ph_pump = quality.IPHDosingPump()
-decrease_ph_pump = quality.IPHDosingPump()
+ph_sensor = EzoPhCircuit(10, 11)
+water_thermometer = DS18B20(5)
+room_thermometer = MCP9808(6, 8)
+
+heater = Relay(1)
+cooler = Relay(2)
+increase_ph_pump = Relay(3)
+decrease_ph_pump = Relay(4)
+
+if enableSimualator:
+    simulator = Simulator()
 
 
 def read_value(sensor: ISensor) -> float:
+    if enableSimualator:
+        val = sensor.readSimulated(simulator.plant)
+        return val
     return sensor.read()
 
 
@@ -59,7 +63,7 @@ def main_loop(
         read_value, [water_thermometer, room_thermometer, ph_sensor]
     )
 
-    toggle_actuator: typing.Callable[[IActuator, bool], None] = (
+    toggle_actuator: typing.Callable[[IRelay, bool], None] = (
         lambda actuator, actuator_state: actuator.turnOn()
         if actuator_state
         else actuator.turnOff()
@@ -67,7 +71,7 @@ def main_loop(
 
     # Check what states the actuators need to be set to
     temperature_states = temperature.controlWaterTemperature(
-        water_temperature, room_temperature, 30, 3
+        water_temperature, room_temperature, 25, 3
     )
     ph_states = quality.controlWaterQuality(ph_value, 6.5, 7.5)
 
@@ -80,6 +84,9 @@ def main_loop(
         ph_states.ph_remove_pump_status,
     ]
     list(map(toggle_actuator, actuators, states))
+
+    if enableSimualator:
+        simulator.runIteration(heater, cooler, increase_ph_pump, decrease_ph_pump)
 
     return lambda: f(
         ph_sensor,

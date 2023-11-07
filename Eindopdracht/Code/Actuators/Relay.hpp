@@ -3,11 +3,11 @@
 
 #include <iostream>
 #include <pybind11/pybind11.h>
-// #include "IActuator.hpp"
+#include "IRelay.hpp"
 
 namespace py = pybind11;
 
-class Relay
+class Relay : public IRelay
 {
 public:
     Relay(int pinNumber) : pinNumber(pinNumber), pinState(false){};
